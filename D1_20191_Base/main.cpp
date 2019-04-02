@@ -97,15 +97,48 @@ void drawObject()
     glEnd();
 }
 
+void DesenhaEixos2D(){
+    glBegin(GL_LINES);
+        glColor3f (1.0, 1.0, 1.0);
+        glVertex3f(-10.0, 0.0, 0.0);
+        glVertex3f( 10.0, 0.0, 0.0);
+
+        glVertex3f(0.0, -10.0, 0.0);
+        glVertex3f(0.0,  10.0, 0.0);
+    glEnd();
+}
+
 void display(void)
 {
     glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
+    ///Desenha primeira ViewPort
+    glViewport ((int) 0, (int) 0, (int) width/2, (int) height);
+    glScissor((int) 0, (int) 0, (int) width/2, (int) height);
+    glEnable(GL_SCISSOR_TEST);
+    glClearColor(1.0, 1.0, 1.0, 1.0 );
+    glClear(GL_COLOR_BUFFER_BIT);
 
+    glMatrixMode (GL_PROJECTION);
+    glLoadIdentity ();
+    glOrtho(-10.0, 10.0, -10.0, 10.0, -1, 1);
+
+    /*desenha eixos 2D*/
+    DesenhaEixos2D();
+
+    ///Desenha segunda ViewPort
+    glViewport ((int)  width/2, (int) 0, (int)  width/2, (int) height);
+    glScissor((int) width/2, (int) 0, (int) width/2, (int) height);
+    glEnable(GL_SCISSOR_TEST);
+    glClearColor(0.0, 0.0, 0.0, 0.0);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glMatrixMode (GL_PROJECTION);
+    glLoadIdentity ();
+    gluPerspective(60.0, (GLfloat) width/(GLfloat) height, 1.0, 200.0);
     gluLookAt (0.0, 0.0, zdist, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 
+    /*desenha Objetos 3D*/
     glPushMatrix();
         glRotatef( rotationY, 0.0, 1.0, 0.0 );
         glRotatef( rotationX, 1.0, 0.0, 0.0 );
@@ -124,11 +157,6 @@ void reshape (int w, int h)
 {
     width = w;
     height = h;
-
-    glViewport (0, 0, (GLsizei) w, (GLsizei) h);
-    glMatrixMode (GL_PROJECTION);
-    glLoadIdentity ();
-    gluPerspective(60.0, (GLfloat) w/(GLfloat) h, 0.01, 200.0);
 }
 
 void keyboard (unsigned char key, int x, int y)
