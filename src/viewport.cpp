@@ -92,7 +92,12 @@ void DesenhaObjetos()
 // Glut and image functions
 
 void desenhaCantoSuperiorEsquerdo(){
+
     glViewport ((int) 0, (int) 205, (int) 195, (int) 195);
+    glScissor(0, 205, 195, 195);
+glEnable(GL_SCISSOR_TEST);
+glClearColor(1, 1, 1, 1);
+glClear(GL_COLOR_BUFFER_BIT);
     glMatrixMode (GL_PROJECTION);
     glLoadIdentity ();
     glOrtho(-10.0, 10.0, -10.0, 10.0, -1, 1);
@@ -109,8 +114,12 @@ void display(void)
     // Define viewport do canto superior esquerdo
     desenhaCantoSuperiorEsquerdo();
 
-    // Define viewport do canto inferior esquerdo
+    // Define viewport do canto inferior esquerd
     glViewport ((int) 0, (int) 0, (int) 195, (int) 195);
+    glScissor(0, 00, 195, 195);
+glEnable(GL_SCISSOR_TEST);
+glClearColor(1, 1, 0, 1);
+glClear(GL_COLOR_BUFFER_BIT);
     glMatrixMode (GL_PROJECTION);
     glLoadIdentity ();
     glOrtho(-10.0, 1, -10.0, 1, -1, 1);
