@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1535591764 source:/home/luccas/Documentos/Faculdade/CG/CG/src/braco3D.cpp
+	<GL/glut.h>
+	<stdio.h>
+	<stdlib.h>
+

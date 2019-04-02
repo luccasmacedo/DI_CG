@@ -1,0 +1,46 @@
+Projeto Raytracing  (24/10/2014)
+------------------
+
+Sobre
+-----
+
+Este projeto contem um implementação simples de Ray Tracing. O código é bastante limitado,
+sendo capaz de lidar apenas com esferas e triângulos.
+
+Este projeto carrega e renderiza cenários previamente armazenados com o algoritmo de Ray
+Tracing. Cenários de exemplo estão disponíveis na pasta "data".
+
+
+Testes iniciais
+---------------
+
+Abra o workspace "raytracing.workspace" e escolha o sistema operacional adequado.
+
+Você poderá:
+1) Alterar o cenário que deseja carregar no início do arquivo "main.cpp" ou passando como parâmetro
+   da função main na execução do projeto via terminal.
+2) Alterar os dados do cenário dentro dos arquivos rayTracingScene0*.txt
+
+
+CG_SETTINGS
+-----------
+
+Dentro dos arquivos de cena você poderá especificar o centro de projeção (PRP) e a posição do
+plano de projeção (VRP). As variáveis uMin, uMax, vMin e vMax definem os limites do plano de
+projeção.
+
+Por default, o centro de projeção foi posicionado no eixo z na posição z = -1.5 e o plano de projeção posicionado na origem.
+Para manter a razão de aspecto 2:1, o mundo foi definido variando 'u' (que nesta configuração equivale ao eixo 'x')
+de -1.0 a 1.0 e o 'v' (que equivale ao eixo 'y') variando de -0.5 a 0.5.
+
+
+Configuração do ambiente de desenvolvimento
+-------------------------------------------
+
+Este projeto foi desenvolvido para ser executado no ambiente windows e linux com a IDE
+Code::Blocks. Para windows, não é necessário baixar e/ou configurar nada. Para linux,
+é necessário ter instalado os pacotes g++, freeglut3-dev, libglew-dev e libXxf86vm-dev.
+
+--------------------------------------------------------------------------------------------------
+Este projeto é uma adaptação do algoritmo disponível no link abaixo:
+https://code.google.com/p/glraytracer/

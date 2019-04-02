@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_workspace_file>
+	<Workspace title="Workspace">
+		<Project filename="src/01_baseProject.cbp" />
+		<Project filename="src/quad.cbp" />
+		<Project filename="src/quadColor.cbp" />
+		<Project filename="src/quadColorReshape.cbp" />
+		<Project filename="src/mouseKeyboard.cbp" />
+		<Project filename="src/viewport.cbp" />
+		<Project filename="src/quadTransform.cbp" />
+		<Project filename="src/braco3D.cbp" />
+		<Project filename="src/animatedTriangle.cbp" />
+		<Project filename="src/animationExerciseBase.cbp" />
+		<Project filename="src/projection.cbp" />
+		<Project filename="src/cameraRotation.cbp" />
+		<Project filename="src/3DView.cbp" />
+		<Project filename="src/lighting.cbp" />
+		<Project filename="src/lightingTwoLights.cbp" />
+		<Project filename="src/lightingAtenuacao.cbp" />
+		<Project filename="src/polygonTwoSide.cbp" />
+		<Project filename="src/spotlightExample.cbp" />
+		<Project filename="src/objViewer.cbp" />
+		<Project filename="src/zbufferBackface.cbp" />
+		<Project filename="src/shading.cbp" />
+		<Project filename="src/textureMapping.cbp" />
+		<Project filename="src/objViewerTextured.cbp" />
+		<Project filename="src/phong.cbp" />
+		<Project filename="src/rayTracing.cbp" />
+		<Project filename="src/shaderExample.cbp" />
+		<Project filename="src/openglVersion.cbp" />
+	</Workspace>
+</CodeBlocks_workspace_file>

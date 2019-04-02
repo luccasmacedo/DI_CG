@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="Texture Mapping" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Option virtualFolders="Files/;shared/;" />
+		<Build>
+			<Target title="Debug">
+				<Option output="../bin/output" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../bin" />
+				<Option object_output="../bin/_obj" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-Wno-unused-function" />
+			<Add option="-fexceptions" />
+			<Add directory="../include" />
+			<Add directory="../bin" />
+			<Add directory="../shared" />
+			<Add directory="/usr/lib/nvidia-304-updates" />
+		</Compiler>
+		<Linker>
+			<Add library="pthread" />
+			<Add library="glut" />
+			<Add library="GL" />
+			<Add library="GLU" />
+			<Add library="png" />
+			<Add library="z" />
+		</Linker>
+		<Unit filename="../shared/glcTexture.cpp">
+			<Option virtualFolder="shared/" />
+		</Unit>
+		<Unit filename="../shared/glcTexture.h">
+			<Option virtualFolder="shared/" />
+		</Unit>
+		<Unit filename="TextureMapping.cpp">
+			<Option virtualFolder="Files/" />
+		</Unit>
+		<Extensions>
+			<code_completion />
+			<debugger />
+			<envvars />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

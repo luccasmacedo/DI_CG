@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="Ray Tracing" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Option virtualFolders="Files/;" />
+		<Build>
+			<Target title="Debug">
+				<Option output="../bin/output" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../bin" />
+				<Option object_output="../bin/_obj" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-Wno-unused-function" />
+			<Add option="-fexceptions" />
+			<Add directory="../include" />
+			<Add directory="../bin" />
+			<Add directory="/usr/lib/nvidia-304-updates" />
+		</Compiler>
+		<Linker>
+			<Add library="pthread" />
+			<Add library="glut" />
+			<Add library="GL" />
+			<Add library="GLU" />
+			<Add library="png" />
+			<Add library="z" />
+		</Linker>
+		<Unit filename="rayTracer.cpp">
+			<Option virtualFolder="Files/" />
+		</Unit>
+		<Unit filename="rayTracer.h">
+			<Option virtualFolder="Files/" />
+		</Unit>
+		<Unit filename="rayTracing.cpp">
+			<Option virtualFolder="Files/" />
+		</Unit>
+		<Unit filename="rayTracing.txt">
+			<Option virtualFolder="Files/" />
+		</Unit>
+		<Unit filename="rayTracingSceneReader.cpp">
+			<Option virtualFolder="Files/" />
+		</Unit>
+		<Unit filename="rayTracingSceneReader.h">
+			<Option virtualFolder="Files/" />
+		</Unit>
+		<Extensions>
+			<code_completion />
+			<debugger />
+			<envvars />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

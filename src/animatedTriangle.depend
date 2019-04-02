@@ -1,0 +1,15 @@
+# depslib dependency file v1.0
+1535591405 source:/home/luccas/Documentos/Faculdade/CG/CG/shared/glcFPSViewer.cpp
+	"glcFPSViewer.h"
+	<stdio.h>
+	<string.h>
+	<GL/glut.h>
+
+1535591407 /home/luccas/Documentos/Faculdade/CG/CG/shared/glcFPSViewer.h
+	"glcFPSViewer.h"
+
+1553643913 source:/home/luccas/Documentos/Faculdade/CG/CG/src/AnimatedTriangle.cpp
+	<iostream>
+	<GL/glut.h>
+	<glcFPSViewer.h>
+

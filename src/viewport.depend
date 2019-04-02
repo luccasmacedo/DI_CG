@@ -1,0 +1,7 @@
+# depslib dependency file v1.0
+1553474626 source:/home/luccas/Documentos/Faculdade/CG/CG/src/viewport.cpp
+	<GL/glut.h>
+	<stdio.h>
+	<stdlib.h>
+	<math.h>
+

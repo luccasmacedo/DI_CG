@@ -1,0 +1,21 @@
+Updates
+-------
+
+-- Update -----------------------------------------------------
+Date: 22/08/2018
+Author: Rodrigo L. S. Silva
+- DrawBoundingBox method added;
+- Bounding Box structured and method added;
+- GetDimensions method added
+
+-- Update -----------------------------------------------------
+Date: 20/08/2018
+Author: Douglas Coelho Braga de Oliveira
+- Fix Unitize method;
+- Bounding Box structured and method added;
+- GetDimensions method added
+
+-- First Release ----------------------------------------------
+Date: 02/07/2017
+Author: Rodrigo L. S. Silva
+---------------------------------------------------------------

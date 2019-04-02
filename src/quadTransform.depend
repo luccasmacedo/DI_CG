@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1553481993 source:/home/luccas/Documentos/Faculdade/CG/CG/src/quadTransform.cpp
+	<GL/glut.h>
+	<stdio.h>
+	<stdlib.h>
+

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_workspace_file>
+	<Workspace title="Workspace">
+		<Project filename="src/windowsBase.cbp" />
+		<Project filename="src/windows.cbp" />
+		<Project filename="src/windowsOGLVersion.cbp" />
+	</Workspace>
+</CodeBlocks_workspace_file>

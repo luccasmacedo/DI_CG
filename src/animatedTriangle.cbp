@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="Animated Triangle" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Option virtualFolders="src/;shared/;" />
+		<Build>
+			<Target title="Debug">
+				<Option output="../bin/output" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../bin" />
+				<Option object_output="../bin/_obj" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-std=c++11" />
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-Wno-unused-function" />
+			<Add option="-fexceptions" />
+			<Add directory="../include" />
+			<Add directory="../bin" />
+			<Add directory="/usr/lib/nvidia-304-updates" />
+			<Add directory="../shared" />
+		</Compiler>
+		<Linker>
+			<Add library="pthread" />
+			<Add library="glut" />
+			<Add library="GL" />
+			<Add library="GLU" />
+			<Add library="png" />
+			<Add library="z" />
+		</Linker>
+		<Unit filename="../shared/glcFPSViewer.cpp">
+			<Option virtualFolder="shared/" />
+		</Unit>
+		<Unit filename="../shared/glcFPSViewer.h">
+			<Option virtualFolder="shared/" />
+		</Unit>
+		<Unit filename="AnimatedTriangle.cpp">
+			<Option virtualFolder="src/" />
+		</Unit>
+		<Extensions>
+			<code_completion />
+			<debugger />
+			<envvars />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

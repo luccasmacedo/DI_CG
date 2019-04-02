@@ -1,0 +1,7 @@
+# depslib dependency file v1.0
+1553213167 source:/home/luccas/Documentos/Faculdade/CG/CG/src/mouseKeyboard.cpp
+	<ctype.h>
+	<stdio.h>
+	<stdlib.h>
+	<GL/glut.h>
+
