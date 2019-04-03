@@ -3,8 +3,10 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <math.h>
-
+#include <list>
 #include "extras.h"
+
+using namespace std;
 
 /// Estruturas iniciais para armazenar vertices
 //  Você poderá utilizá-las adicionando novos métodos (de acesso por exemplo) ou usar suas próprias estruturas.
@@ -22,10 +24,15 @@ class triangle
 
 /// Globals
 float zdist = 5.0;
+//COordenada z do ponto criado
+float alturaZPonto = 1.0;
 float rotationX = 0.0, rotationY = 0.0;
 int   last_x, last_y;
 int   width, height;
 
+//Lista de listas de vertices
+std::list<list<vertice>> grupos;
+list<vertice> grupoAtual;
 
 /// Functions
 void init(void)
@@ -99,7 +106,7 @@ void drawObject()
 
 void DesenhaEixos2D(){
     glBegin(GL_LINES);
-        glColor3f (1.0, 1.0, 1.0);
+        glColor3f(0.0, 0.0, 1.0);
         glVertex3f(-10.0, 0.0, 0.0);
         glVertex3f( 10.0, 0.0, 0.0);
 
@@ -114,6 +121,8 @@ void display(void)
 
     ///Desenha primeira ViewPort
     glViewport ((int) 0, (int) 0, (int) width/2, (int) height);
+
+    //Define cor de fundo da primeira viewport
     glScissor((int) 0, (int) 0, (int) width/2, (int) height);
     glEnable(GL_SCISSOR_TEST);
     glClearColor(1.0, 1.0, 1.0, 1.0 );
@@ -128,6 +137,8 @@ void display(void)
 
     ///Desenha segunda ViewPort
     glViewport ((int)  width/2, (int) 0, (int)  width/2, (int) height);
+
+    //Define cor de fundo da segunda viewport
     glScissor((int) width/2, (int) 0, (int) width/2, (int) height);
     glEnable(GL_SCISSOR_TEST);
     glClearColor(0.0, 0.0, 0.0, 0.0);
@@ -178,6 +189,7 @@ void motion(int x, int y )
 
     last_x = x;
     last_y = y;
+
 }
 
 // Mouse callback
@@ -187,6 +199,14 @@ void mouse(int button, int state, int x, int y)
     {
         last_x = x;
         last_y = y;
+
+        //adiciona novo vertice ao grupo atual
+        vertice *novo = new vertice();
+        novo->x = x;
+        novo->y = y;
+        novo->z = alturaZPonto;
+        grupoAtual.push_back(*novo);
+        printf("%f + OLa",novo->x);
     }
     if(button == 3) // Scroll up
     {
@@ -201,6 +221,11 @@ void mouse(int button, int state, int x, int y)
 /// Main
 int main(int argc, char** argv)
 {
+    //Definição do primeiro grupo(padrao)
+    list<vertice> grupo1;
+    grupoAtual = grupo1;
+    grupos.push_back(grupo1);
+
     glutInit(&argc, argv);
     glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowSize (800, 600);

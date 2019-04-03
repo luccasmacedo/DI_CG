@@ -10,3 +10,10 @@ e os grupos que podemos ter;
 -A troca entre os grupos será realizada através das setas esquerda e direita do
 teclado.;
 
+
+
+
+
+
+-MUDAR COR DOS EIXOS;
+

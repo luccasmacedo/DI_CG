@@ -1,0 +1,12 @@
+# depslib dependency file v1.0
+1554254296 source:/home/luccas/Documentos/Faculdade/CG/CG/D1_20191_Base/main.cpp
+	<GL/glut.h>
+	<stdlib.h>
+	<stdio.h>
+	<ctype.h>
+	<math.h>
+	<list>
+	"extras.h"
+
+1554143668 /home/luccas/Documentos/Faculdade/CG/CG/D1_20191_Base/extras.h
+
