@@ -5,6 +5,7 @@
 #include <ctype.h>
 #include <math.h>
 #include <list>
+#include <string.h>
 #include "extras.h"
 #include <../shared/glcFPSViewer.h>
 
@@ -31,6 +32,7 @@ float alturaZPonto = 1.0;
 float rotationX = 0.0, rotationY = 0.0;
 int   last_x, last_y;
 int   width, height;
+int click = 0;
 //Mostra informaçoes na barra de titulo
 glcFPSViewer *fpsViewer = new glcFPSViewer((char*) "Modelagem 2D-3D. ", (char*) " - Press ESC to Exit");//Lista de listas de vertices
 
@@ -107,14 +109,56 @@ void drawObject()
     glEnd();
 }
 
-void DesenhaEixos2D(){
+void showInfoOnTitle(int group,float height){
+    static char title[256] = {0};
+    char aux1[32];
+    sprintf(aux1,"Grupo atual: %.1d, ",group);
+    char aux2[32];
+    sprintf(aux2,"Altura do ponto: %.1f",height);
+
+    strcpy(title, "Modelagem 2D-3D, " );
+    strcat(title,aux1);
+    strcat(title,aux2);
+    strcat(title," - Pressione ESC para sair");
+
+    glutSetWindowTitle(title);
+}
+
+void desenhaEixos2D(){
+    glDisable(GL_LIGHTING);
     glBegin(GL_LINES);
-        glColor3f(0.0, 0.0, 1.0);
+        glColor3f(1.0, 0.0, 0.0);
         glVertex3f(-10.0, 0.0, 0.0);
         glVertex3f( 10.0, 0.0, 0.0);
 
+        glColor3f(0.0, 1.0, 0.0);
         glVertex3f(0.0, -10.0, 0.0);
         glVertex3f(0.0,  10.0, 0.0);
+    glEnd();
+    glEnable(GL_LIGHTING);
+}
+
+void desenhaPonto(float x, float y){
+    glPointSize(10.0);
+
+    float pointX = (-10 + x /(width/2) *20);
+    float pointY = (10 - y/height * 20);
+
+    printf("x = %f \n",x);
+    printf("y = %f \n",y);
+
+    printf("pointX = %f \n",pointX);
+    printf("pointY = %f \n",pointY);
+    printf("\n \n");
+
+    vertice vPoint;
+    vPoint.x = pointX;
+    vPoint.y = pointY;
+    vPoint.z = 0;
+
+    glBegin(GL_POINTS);
+        glColor3f(0.0, 0.0, 1.0);
+        glVertex3f(vPoint.x, vPoint.y, 0.0);
     glEnd();
 }
 
@@ -122,7 +166,10 @@ void display(void)
 {
     glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    ///Desenha primeira ViewPort
+    /// Index grupo, alturaZPonto
+    ///showInfoOnTitle((int)1,height);
+
+    ///Desenha primeira ViewPort (2D)
     glViewport ((int) 0, (int) 0, (int) width/2, (int) height);
 
     //Define cor de fundo da primeira viewport
@@ -136,9 +183,14 @@ void display(void)
     glOrtho(-10.0, 10.0, -10.0, 10.0, -1, 1);
 
     /*desenha eixos 2D*/
-    DesenhaEixos2D();
+    desenhaEixos2D();
+    /*desenha ponto 2D*/
+    if(click == 1){
+        desenhaPonto(last_x,last_y);
+    }
 
-    ///Desenha segunda ViewPort
+
+    ///Desenha segunda ViewPort (3D)
     glViewport ((int)  width/2, (int) 0, (int)  width/2, (int) height);
 
     //Define cor de fundo da segunda viewport
@@ -149,13 +201,14 @@ void display(void)
 
     glMatrixMode (GL_PROJECTION);
     glLoadIdentity ();
-    gluPerspective(60.0, (GLfloat) width/(GLfloat) height, 1.0, 200.0);
+    gluPerspective(60.0, (GLfloat) (width/2)/(GLfloat) height, 1.0, 200.0);
     gluLookAt (0.0, 0.0, zdist, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 
-    /*desenha Objetos 3D*/
+    /*Objetos 3D*/
     glPushMatrix();
         glRotatef( rotationY, 0.0, 1.0, 0.0 );
         glRotatef( rotationX, 1.0, 0.0, 0.0 );
+        //Desenha objeto 3D
         drawObject();
     glPopMatrix();
 
@@ -202,7 +255,7 @@ void mouse(int button, int state, int x, int y)
     {
         last_x = x;
         last_y = y;
-
+        click = 1;
         //adiciona novo vertice ao grupo atual
         vertice *novo = new vertice();
         novo->x = x;
@@ -212,6 +265,7 @@ void mouse(int button, int state, int x, int y)
     }
     if ( button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN )
     {
+
         //Exclui ultimo ponto criado no grupo atual
     }
     if(button == 3) // Scroll up

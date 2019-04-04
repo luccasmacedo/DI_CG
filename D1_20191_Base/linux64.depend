@@ -15,3 +15,19 @@
 1535591407 /home/luccas/Documentos/Faculdade/CG/CG/shared/glcFPSViewer.h
 	"glcFPSViewer.h"
 
+1554410436 source:/home/ubuntu-thalita/Documentos/Git-CG/DI_CG/D1_20191_Base/main.cpp
+	<GL/glut.h>
+	<stdlib.h>
+	<iostream>
+	<stdio.h>
+	<ctype.h>
+	<math.h>
+	<list>
+	"extras.h"
+	<../shared/glcFPSViewer.h>
+
+1554238616 /home/ubuntu-thalita/Documentos/Git-CG/DI_CG/D1_20191_Base/extras.h
+
+1554238616 /home/ubuntu-thalita/Documentos/Git-CG/DI_CG/shared/glcFPSViewer.h
+	"glcFPSViewer.h"
+
