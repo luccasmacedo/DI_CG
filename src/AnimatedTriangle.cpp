@@ -17,7 +17,7 @@ using namespace std;
 float desiredFPS = 60;
 float var = 0.0f;
 float dir = 1.0f;
-glcFPSViewer *fpsViewer = new glcFPSViewer((char*) "Triangle Animation. ", (char*) " - Press ESC to Exit");
+glcFPSViewer *fpsViewer = new glcFPSViewer((char*) "Modelagem 2D-3D. ", (char*) " - Pressione ESC para sair");
 
 void display(void);
 void init (void);

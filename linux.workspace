@@ -28,5 +28,6 @@
 		<Project filename="src/rayTracing.cbp" />
 		<Project filename="src/shaderExample.cbp" />
 		<Project filename="src/openglVersion.cbp" />
+		<Project filename="D1_20191_Base/linux64.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>

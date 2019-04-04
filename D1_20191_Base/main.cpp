@@ -1,10 +1,12 @@
 #include <GL/glut.h>
 #include <stdlib.h>
+#include <iostream>
 #include <stdio.h>
 #include <ctype.h>
 #include <math.h>
 #include <list>
 #include "extras.h"
+#include <../shared/glcFPSViewer.h>
 
 using namespace std;
 
@@ -24,13 +26,14 @@ class triangle
 
 /// Globals
 float zdist = 5.0;
-//COordenada z do ponto criado
+//Coordenada z do ponto criado
 float alturaZPonto = 1.0;
 float rotationX = 0.0, rotationY = 0.0;
 int   last_x, last_y;
 int   width, height;
+//Mostra informaçoes na barra de titulo
+glcFPSViewer *fpsViewer = new glcFPSViewer((char*) "Modelagem 2D-3D. ", (char*) " - Press ESC to Exit");//Lista de listas de vertices
 
-//Lista de listas de vertices
 std::list<list<vertice>> grupos;
 list<vertice> grupoAtual;
 
@@ -206,7 +209,10 @@ void mouse(int button, int state, int x, int y)
         novo->y = y;
         novo->z = alturaZPonto;
         grupoAtual.push_back(*novo);
-        printf("%f + OLa",novo->x);
+    }
+    if ( button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN )
+    {
+        //Exclui ultimo ponto criado no grupo atual
     }
     if(button == 3) // Scroll up
     {
@@ -216,6 +222,28 @@ void mouse(int button, int state, int x, int y)
     {
         zdist-=1.0f;
     }
+}
+
+void specialKeysPress(int key, int x, int y)
+{
+    switch(key)
+    {
+        case GLUT_KEY_UP:
+            //Aumenta altura do ponto criado
+            break;
+        case GLUT_KEY_DOWN:
+            //Diminui altura do ponto criado
+            break;
+        case GLUT_KEY_RIGHT:
+            //Troca grupo e cria se necessário
+            break;
+        case GLUT_KEY_LEFT:
+            //troca grupo
+            break;
+        default:
+            break;
+    }
+    glutPostRedisplay();
 }
 
 /// Main
@@ -236,6 +264,7 @@ int main(int argc, char** argv)
     glutReshapeFunc(reshape);
     glutMouseFunc( mouse );
     glutMotionFunc( motion );
+    glutSpecialFunc(specialKeysPress);
     glutKeyboardFunc(keyboard);
     glutIdleFunc(idle);
     glutMainLoop();
