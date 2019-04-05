@@ -8,6 +8,7 @@
 #include <string.h>
 #include "extras.h"
 #include <../shared/glcFPSViewer.h>
+#include <vector>
 
 using namespace std;
 
@@ -30,13 +31,15 @@ float zdist = 5.0;
 //Coordenada z do ponto criado
 float alturaZPonto = 1.0;
 float rotationX = 0.0, rotationY = 0.0;
-int   last_x, last_y;
-int   width, height;
+int  last_x, last_y;
+int  width, height;
 int click = 0;
+
+int indexGrupoAtual = 0;
 //Mostra informaçoes na barra de titulo
 glcFPSViewer *fpsViewer = new glcFPSViewer((char*) "Modelagem 2D-3D. ", (char*) " - Press ESC to Exit");//Lista de listas de vertices
 
-std::list<list<vertice>> grupos;
+vector<list<vertice>> grupos;
 list<vertice> grupoAtual;
 
 /// Functions
@@ -138,9 +141,8 @@ void desenhaEixos2D(){
     glEnable(GL_LIGHTING);
 }
 
-void desenhaPonto(float x, float y){
-    glPointSize(10.0);
 
+void calculaCoordenadasPonto(float x, float y){
     float pointX = (-10 + x /(width/2) *20);
     float pointY = (10 - y/height * 20);
 
@@ -151,14 +153,25 @@ void desenhaPonto(float x, float y){
     printf("pointY = %f \n",pointY);
     printf("\n \n");
 
-    vertice vPoint;
-    vPoint.x = pointX;
-    vPoint.y = pointY;
-    vPoint.z = 0;
+    //adiciona novo vertice ao grupo atual
+    vertice *novo = new vertice();
+    novo->x = pointX;
+    novo->y = pointY;
+    novo->z = alturaZPonto;
+    grupos[indexGrupoAtual].push_back(*novo);
 
+    printf("indexGrupoAtual: %d \n",indexGrupoAtual);
+    printf("sizeGrupos: %d \n",grupos.size());
+    printf("sizeList: %d \n",grupos[indexGrupoAtual].size());
+    printf("\n \n");
+}
+
+void desenhaPonto(float x, float y){
+    glPointSize(10.0);
+    glEnable(GL_POINT_SMOOTH);
     glBegin(GL_POINTS);
         glColor3f(0.0, 0.0, 1.0);
-        glVertex3f(vPoint.x, vPoint.y, 0.0);
+        glVertex3f(x, y, 0.0);
     glEnd();
 }
 
@@ -167,7 +180,7 @@ void display(void)
     glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     /// Index grupo, alturaZPonto
-    ///showInfoOnTitle((int)1,height);
+    showInfoOnTitle(indexGrupoAtual,alturaZPonto);
 
     ///Desenha primeira ViewPort (2D)
     glViewport ((int) 0, (int) 0, (int) width/2, (int) height);
@@ -186,7 +199,10 @@ void display(void)
     desenhaEixos2D();
     /*desenha ponto 2D*/
     if(click == 1){
-        desenhaPonto(last_x,last_y);
+        for(list<vertice>::iterator it = grupos[indexGrupoAtual].begin(); it != grupos[indexGrupoAtual].end(); it++){
+            desenhaPonto(it->x, it->y);
+        }
+
     }
 
 
@@ -256,17 +272,14 @@ void mouse(int button, int state, int x, int y)
         last_x = x;
         last_y = y;
         click = 1;
-        //adiciona novo vertice ao grupo atual
-        vertice *novo = new vertice();
-        novo->x = x;
-        novo->y = y;
-        novo->z = alturaZPonto;
-        grupoAtual.push_back(*novo);
+
+        calculaCoordenadasPonto(x,y);
     }
     if ( button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN )
     {
-
-        //Exclui ultimo ponto criado no grupo atual
+        if(grupos[indexGrupoAtual].size() > 0){
+            grupos[indexGrupoAtual].pop_back();
+        }
     }
     if(button == 3) // Scroll up
     {
@@ -284,15 +297,27 @@ void specialKeysPress(int key, int x, int y)
     {
         case GLUT_KEY_UP:
             //Aumenta altura do ponto criado
+            alturaZPonto++;
             break;
         case GLUT_KEY_DOWN:
             //Diminui altura do ponto criado
+            if(alturaZPonto > 1){
+                 alturaZPonto--;
+            }
             break;
         case GLUT_KEY_RIGHT:
             //Troca grupo e cria se necessário
+            indexGrupoAtual++;
+            if(indexGrupoAtual >= grupos.size()){
+                list<vertice> grupo1;
+                grupos.push_back(grupo1);
+            }
             break;
         case GLUT_KEY_LEFT:
             //troca grupo
+            if(indexGrupoAtual > 0){
+                indexGrupoAtual--;
+            }
             break;
         default:
             break;
