@@ -36,8 +36,6 @@ int  width, height;
 int click = 0;
 
 int indexGrupoAtual = 0;
-//Mostra informaçoes na barra de titulo
-glcFPSViewer *fpsViewer = new glcFPSViewer((char*) "Modelagem 2D-3D. ", (char*) " - Press ESC to Exit");//Lista de listas de vertices
 
 vector<list<vertice>> grupos;
 list<vertice> grupoAtual;
@@ -90,16 +88,16 @@ void CalculaNormal(triangle t, vertice *vn)
     vn->z /= len;
 }
 
-void drawObject()
+void drawTriangle(vertice v1, vertice v2)
 {
     vertice vetorNormal;
-    vertice v[4] = {{-1.0f, -1.0f,  0.0f},
-                    { 1.0f, -1.0f,  0.0f},
-                    {-1.0f,  1.0f,  0.0f},
-                    { 1.0f,  1.0f, -0.5f}};
+    vertice v[4] = {{v1.x, v1.y,  0.0f},
+                    {v2.x, v2.y,  0.0f},
+                    {v1.x, v1.y,  v1.z},
+                    {v2.x, v2.y,  v2.z}};
 
     triangle t[2] = {{v[0], v[1], v[2]},
-                     {v[1], v[3], v[2]}};
+                     {v[1], v[2], v[3]}};
 
     glBegin(GL_TRIANGLES);
         for(int i = 0; i < 2; i++) // triangulos
@@ -141,6 +139,27 @@ void desenhaEixos2D(){
     glEnable(GL_LIGHTING);
 }
 
+void modela3D(){
+    for(list<vertice>::iterator it = grupos[indexGrupoAtual].begin(); it != grupos[indexGrupoAtual].end(); it++){
+        vertice v1;
+        v1.x = it->x;
+        v1.y = it->y;
+        v1.z = it->z;
+
+        it++;
+        if(it != grupos[indexGrupoAtual].end()){
+            vertice v2;
+            v2.x = it->x;
+            v2.y = it->y;
+            v2.z = it->z;
+
+            drawTriangle(v1,v2);
+        }else{
+            break;
+        }
+        it--;
+    }
+}
 
 void calculaCoordenadasPonto(float x, float y){
     float pointX = (-10 + x /(width/2) *20);
@@ -202,9 +221,7 @@ void display(void)
         for(list<vertice>::iterator it = grupos[indexGrupoAtual].begin(); it != grupos[indexGrupoAtual].end(); it++){
             desenhaPonto(it->x, it->y);
         }
-
     }
-
 
     ///Desenha segunda ViewPort (3D)
     glViewport ((int)  width/2, (int) 0, (int)  width/2, (int) height);
@@ -225,7 +242,7 @@ void display(void)
         glRotatef( rotationY, 0.0, 1.0, 0.0 );
         glRotatef( rotationX, 1.0, 0.0, 0.0 );
         //Desenha objeto 3D
-        drawObject();
+        modela3D();
     glPopMatrix();
 
     glutSwapBuffers();
@@ -272,8 +289,8 @@ void mouse(int button, int state, int x, int y)
         last_x = x;
         last_y = y;
         click = 1;
-
-        calculaCoordenadasPonto(x,y);
+        if(x < width/2)
+            calculaCoordenadasPonto(x,y);
     }
     if ( button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN )
     {
@@ -301,9 +318,8 @@ void specialKeysPress(int key, int x, int y)
             break;
         case GLUT_KEY_DOWN:
             //Diminui altura do ponto criado
-            if(alturaZPonto > 1){
+            if(alturaZPonto > 1)
                  alturaZPonto--;
-            }
             break;
         case GLUT_KEY_RIGHT:
             //Troca grupo e cria se necessário

@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1554340504 source:/home/luccas/Documentos/Faculdade/CG/CG/D1_20191_Base/main.cpp
+1554529772 source:/home/luccas/Documentos/Faculdade/CG/CG/D1_20191_Base/main.cpp
 	<GL/glut.h>
 	<stdlib.h>
 	<iostream>
@@ -7,8 +7,10 @@
 	<ctype.h>
 	<math.h>
 	<list>
+	<string.h>
 	"extras.h"
 	<../shared/glcFPSViewer.h>
+	<vector>
 
 1554143668 /home/luccas/Documentos/Faculdade/CG/CG/D1_20191_Base/extras.h
 
