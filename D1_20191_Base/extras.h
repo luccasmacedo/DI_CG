@@ -1,6 +1,7 @@
 
 void initLight(int width, int height)
 {
+   glEnable(GL_DEPTH_TEST);
    glEnable(GL_LIGHTING);                 // Habilita luz
    glEnable(GL_LIGHT0);                   // habilita luz 0
 

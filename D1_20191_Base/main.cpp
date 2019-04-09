@@ -45,6 +45,7 @@ void init(void)
 {
     initLight(width, height); // Função extra para tratar iluminação.
     setMaterials();
+    glClearColor(0.0, 0.0, 0.0, 0.0);
 }
 
 /* Exemplo de cálculo de vetor normal que são definidos a partir dos vértices do triângulo;
@@ -97,13 +98,19 @@ void drawTriangle(vertice v1, vertice v2)
                     {v2.x, v2.y,  v2.z}};
 
     triangle t[2] = {{v[0], v[1], v[2]},
-                     {v[1], v[2], v[3]}};
+                     {v[1], v[3], v[2]}};
 
     glBegin(GL_TRIANGLES);
         for(int i = 0; i < 2; i++) // triangulos
         {
             CalculaNormal(t[i], &vetorNormal); // Passa face triangular e endereço do vetor normal de saída
             glNormal3f(vetorNormal.x, vetorNormal.y,vetorNormal.z);
+
+            printf("normalX = %f \n",vetorNormal.x);
+            printf("normalY = %f \n",vetorNormal.y);
+            printf("normalZ = %f \n",vetorNormal.z);
+            printf("\n \n");
+
             for(int j = 0; j < 3; j++) // vertices do triangulo
                 glVertex3d(t[i].v[j].x, t[i].v[j].y, t[i].v[j].z);
         }
@@ -140,24 +147,26 @@ void desenhaEixos2D(){
 }
 
 void modela3D(){
-    for(list<vertice>::iterator it = grupos[indexGrupoAtual].begin(); it != grupos[indexGrupoAtual].end(); it++){
-        vertice v1;
-        v1.x = it->x;
-        v1.y = it->y;
-        v1.z = it->z;
+    for(int i = 0; i < grupos.size(); i++){
+        for(list<vertice>::iterator it = grupos[i].begin(); it != grupos[i].end(); it++){
+            vertice v1;
+            v1.x = it->x;
+            v1.y = it->y;
+            v1.z = it->z;
 
-        it++;
-        if(it != grupos[indexGrupoAtual].end()){
-            vertice v2;
-            v2.x = it->x;
-            v2.y = it->y;
-            v2.z = it->z;
+            it++;
+            if(it != grupos[i].end()){
+                vertice v2;
+                v2.x = it->x;
+                v2.y = it->y;
+                v2.z = it->z;
 
-            drawTriangle(v1,v2);
-        }else{
-            break;
+                drawTriangle(v1,v2);
+            }else{
+                break;
+            }
+            it--;
         }
-        it--;
     }
 }
 
@@ -204,6 +213,7 @@ void display(void)
     ///Desenha primeira ViewPort (2D)
     glViewport ((int) 0, (int) 0, (int) width/2, (int) height);
 
+    glDisable(GL_DEPTH_TEST);
     //Define cor de fundo da primeira viewport
     glScissor((int) 0, (int) 0, (int) width/2, (int) height);
     glEnable(GL_SCISSOR_TEST);
@@ -216,10 +226,14 @@ void display(void)
 
     /*desenha eixos 2D*/
     desenhaEixos2D();
+
+
     /*desenha ponto 2D*/
     if(click == 1){
-        for(list<vertice>::iterator it = grupos[indexGrupoAtual].begin(); it != grupos[indexGrupoAtual].end(); it++){
-            desenhaPonto(it->x, it->y);
+        for(int i = 0; i < grupos.size(); i++){
+            for(list<vertice>::iterator it = grupos[i].begin(); it != grupos[i].end(); it++){
+                desenhaPonto(it->x, it->y);
+            }
         }
     }
 
@@ -229,6 +243,7 @@ void display(void)
     //Define cor de fundo da segunda viewport
     glScissor((int) width/2, (int) 0, (int) width/2, (int) height);
     glEnable(GL_SCISSOR_TEST);
+    glEnable(GL_DEPTH_TEST);
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -236,6 +251,7 @@ void display(void)
     glLoadIdentity ();
     gluPerspective(60.0, (GLfloat) (width/2)/(GLfloat) height, 1.0, 200.0);
     gluLookAt (0.0, 0.0, zdist, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+
 
     /*Objetos 3D*/
     glPushMatrix();
