@@ -27,13 +27,16 @@ class triangle
 };
 
 /// Globals
-float zdist = 5.0;
+float zdist = 10.0;
+
 //Coordenada z do ponto criado
 float alturaZPonto = 1.0;
 float rotationX = 0.0, rotationY = 0.0;
 int  last_x, last_y;
 int  width, height;
 int click = 0;
+float espessura = 1;
+bool fullSreen = false;
 
 int indexGrupoAtual = 0;
 
@@ -45,7 +48,6 @@ void init(void)
 {
     initLight(width, height); // Função extra para tratar iluminação.
     setMaterials();
-    glClearColor(0.0, 0.0, 0.0, 0.0);
 }
 
 /* Exemplo de cálculo de vetor normal que são definidos a partir dos vértices do triângulo;
@@ -58,8 +60,7 @@ void init(void)
   +----> v_1
   v_0
 */
-void CalculaNormal(triangle t, vertice *vn)
-{
+void CalculaNormal(triangle t, vertice *vn){
     vertice v_0 = t.v[0],
             v_1 = t.v[1],
             v_2 = t.v[2];
@@ -83,19 +84,17 @@ void CalculaNormal(triangle t, vertice *vn)
 
     /* normalizacao de n */
     len = sqrt(pow(vn->x,2) + pow(vn->y,2) + pow(vn->z,2));
-
     vn->x /= len;
     vn->y /= len;
     vn->z /= len;
 }
 
-void drawTriangle(vertice v1, vertice v2)
-{
+void drawTriangle(vertice v1, vertice v2){
     vertice vetorNormal;
     vertice v[4] = {{v1.x, v1.y,  0.0f},
-                    {v2.x, v2.y,  0.0f},
-                    {v1.x, v1.y,  v1.z},
-                    {v2.x, v2.y,  v2.z}};
+                    { v2.x, v2.y,  0.0f},
+                    {v1.x,  v1.y,  v1.z},
+                    { v2.x,  v2.y, v2.z}};
 
     triangle t[2] = {{v[0], v[1], v[2]},
                      {v[1], v[3], v[2]}};
@@ -105,12 +104,6 @@ void drawTriangle(vertice v1, vertice v2)
         {
             CalculaNormal(t[i], &vetorNormal); // Passa face triangular e endereço do vetor normal de saída
             glNormal3f(vetorNormal.x, vetorNormal.y,vetorNormal.z);
-
-            printf("normalX = %f \n",vetorNormal.x);
-            printf("normalY = %f \n",vetorNormal.y);
-            printf("normalZ = %f \n",vetorNormal.z);
-            printf("\n \n");
-
             for(int j = 0; j < 3; j++) // vertices do triangulo
                 glVertex3d(t[i].v[j].x, t[i].v[j].y, t[i].v[j].z);
         }
@@ -170,16 +163,13 @@ void modela3D(){
     }
 }
 
+void carregaModelo(){}
+
+void salvaModelo(){}
+
 void calculaCoordenadasPonto(float x, float y){
     float pointX = (-10 + x /(width/2) *20);
     float pointY = (10 - y/height * 20);
-
-    printf("x = %f \n",x);
-    printf("y = %f \n",y);
-
-    printf("pointX = %f \n",pointX);
-    printf("pointY = %f \n",pointY);
-    printf("\n \n");
 
     //adiciona novo vertice ao grupo atual
     vertice *novo = new vertice();
@@ -187,11 +177,6 @@ void calculaCoordenadasPonto(float x, float y){
     novo->y = pointY;
     novo->z = alturaZPonto;
     grupos[indexGrupoAtual].push_back(*novo);
-
-    printf("indexGrupoAtual: %d \n",indexGrupoAtual);
-    printf("sizeGrupos: %d \n",grupos.size());
-    printf("sizeList: %d \n",grupos[indexGrupoAtual].size());
-    printf("\n \n");
 }
 
 void desenhaPonto(float x, float y){
@@ -203,8 +188,7 @@ void desenhaPonto(float x, float y){
     glEnd();
 }
 
-void display(void)
-{
+void display(void){
     glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     /// Index grupo, alturaZPonto
@@ -252,8 +236,8 @@ void display(void)
     gluPerspective(60.0, (GLfloat) (width/2)/(GLfloat) height, 1.0, 200.0);
     gluLookAt (0.0, 0.0, zdist, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 
-
     /*Objetos 3D*/
+    glMatrixMode (GL_MODELVIEW);
     glPushMatrix();
         glRotatef( rotationY, 0.0, 1.0, 0.0 );
         glRotatef( rotationX, 1.0, 0.0, 0.0 );
@@ -264,31 +248,42 @@ void display(void)
     glutSwapBuffers();
 }
 
-void idle ()
-{
+void idle (){
     glutPostRedisplay();
 }
 
-void reshape (int w, int h)
-{
+void reshape (int w, int h){
     width = w;
     height = h;
 }
 
-void keyboard (unsigned char key, int x, int y)
-{
+void keyboard (unsigned char key, int x, int y){
 
     switch (tolower(key))
     {
         case 27:
             exit(0);
             break;
+        case '.':
+        //Aumenta espessura do modelo 3D
+            espessura +=0.2;
+            break;
+        case ',':
+            if(espessura > 0.4){
+                espessura -= 0.2
+            }
+            break;
+        case 's':
+            salvaModelo();
+            break;
+        case 'l':
+            carregaModelo();
+            break;
     }
 }
 
 // Motion callback
-void motion(int x, int y )
-{
+void motion(int x, int y ){
     rotationX += (float) (y - last_y);
     rotationY += (float) (x - last_x);
 
@@ -298,8 +293,7 @@ void motion(int x, int y )
 }
 
 // Mouse callback
-void mouse(int button, int state, int x, int y)
-{
+void mouse(int button, int state, int x, int y){
     if ( button == GLUT_LEFT_BUTTON && state == GLUT_DOWN )
     {
         last_x = x;
@@ -353,10 +347,16 @@ void specialKeysPress(int key, int x, int y)
             break;
         default:
             break;
+        case GLUT_KEY_F12:
+            //Modo Fullscreen
+            fullSreen = true;
     }
     glutPostRedisplay();
 }
 
+void exibeMenu(){
+    printf("");
+}
 /// Main
 int main(int argc, char** argv)
 {
@@ -365,6 +365,7 @@ int main(int argc, char** argv)
     grupoAtual = grupo1;
     grupos.push_back(grupo1);
 
+    exibeMenu();
     glutInit(&argc, argv);
     glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowSize (800, 600);
