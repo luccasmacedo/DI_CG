@@ -18,6 +18,7 @@ class vertice
 {
     public:
         float x,y,z;
+        float espessura;
 };
 
 class triangle
@@ -35,8 +36,9 @@ float rotationX = 0.0, rotationY = 0.0;
 int  last_x, last_y;
 int  width, height;
 int click = 0;
-float espessura = 1;
+float espessuraGlobal = 1;
 bool fullSreen = false;
+vertice oldVector[4];
 
 int indexGrupoAtual = 0;
 
@@ -89,15 +91,30 @@ void CalculaNormal(triangle t, vertice *vn){
     vn->z /= len;
 }
 
-void drawTriangle(vertice v1, vertice v2){
+void CalculoOrtogonal(vertice v1, vertice v2, vertice* vn){
+    vertice vetor;
+    vetor.x = v1.x - v2.x;
+    vetor.y = v1.y - v2.y;
+    vetor.z = 0.0;
+
+    vn->x = vetor.y;
+    vn->y = -vetor.x;
+
+    float v_length = sqrt(pow(vetor.x/2 - vn->x,2) + pow(vetor.y/2 - vn->y,2));
+
+    vn->x /= v_length;
+    vn->y /= v_length;
+}
+
+void drawTriangle(vertice v1, vertice v2, vertice v3, vertice v4){
     vertice vetorNormal;
-    vertice v[4] = {{v1.x, v1.y,  0.0f},
-                    { v2.x, v2.y,  0.0f},
-                    {v1.x,  v1.y,  v1.z},
-                    { v2.x,  v2.y, v2.z}};
+    vertice v[4] = {{v1.x, v1.y,  v1.z},
+                    {v2.x, v2.y,  v2.z},
+                    {v3.x,  v3.y,  v3.z},
+                    {v4.x,  v4.y, v4.z}};
 
     triangle t[2] = {{v[0], v[1], v[2]},
-                     {v[1], v[3], v[2]}};
+                     {v[2], v[3], v[0]}};
 
     glBegin(GL_TRIANGLES);
         for(int i = 0; i < 2; i++) // triangulos
@@ -108,6 +125,77 @@ void drawTriangle(vertice v1, vertice v2){
                 glVertex3d(t[i].v[j].x, t[i].v[j].y, t[i].v[j].z);
         }
     glEnd();
+}
+
+void drawSolido(vertice v1, vertice v2){
+    vertice ortogonal;
+    CalculoOrtogonal(v1, v2, &ortogonal);
+
+    vertice v3, v4, v5, v6, v7, v8, v9, v10;
+
+    v3.x =  v1.x + ortogonal.x*(v1.espessura);
+    v3.y =  v1.y + ortogonal.y*(v1.espessura);
+    v3.z = 0;
+
+    v4.x =  v1.x - ortogonal.x*(v1.espessura);
+    v4.y =  v1.y - ortogonal.y*(v1.espessura);
+    v4.z = 0;
+
+    v5.x =  v2.x + ortogonal.x*(v2.espessura);
+    v5.y =  v2.y + ortogonal.y*(v2.espessura);
+    v5.z = 0;
+
+    v6.x =  v2.x - ortogonal.x*(v2.espessura);
+    v6.y =  v2.y - ortogonal.y*(v2.espessura);
+    v6.z = 0;
+
+    v7.x = v3.x;
+    v7.y = v3.y;
+    v7.z = v1.z;
+
+    v8.x = v4.x;
+    v8.y = v4.y;
+    v8.z = v1.z;
+
+    v9.x = v5.x;
+    v9.y = v5.y;
+    v9.z = v2.z;
+
+    v10.x = v6.x;
+    v10.y = v6.y;
+    v10.z = v2.z;
+
+    if(grupos[indexGrupoAtual].size() > 2){
+        v3 = oldVector[1];
+        v4 = oldVector[0];
+        v5 = oldVector[2];
+        v6 = oldVector[3];
+    }
+
+    oldVector[0] = v8;
+    oldVector[1] = v7;
+    oldVector[2] = v9;
+    oldVector[3] = v10;
+
+
+    //1 face do solido
+    drawTriangle(v3,v4,v6,v5);
+
+    //2 face do solido
+    drawTriangle(v7,v3,v5,v9);
+
+    //3 face do solido
+    drawTriangle(v7,v8,v4,v3);
+
+    //4 face do solido
+    drawTriangle(v4,v8,v10,v6);
+
+    //5 face do solido
+    drawTriangle(v10,v9,v5,v6);
+
+    //6 face do solido
+    drawTriangle(v8,v7,v9,v10);
+
 }
 
 void showInfoOnTitle(int group,float height){
@@ -146,6 +234,7 @@ void modela3D(){
             v1.x = it->x;
             v1.y = it->y;
             v1.z = it->z;
+            v1.espessura = it->espessura;
 
             it++;
             if(it != grupos[i].end()){
@@ -153,8 +242,9 @@ void modela3D(){
                 v2.x = it->x;
                 v2.y = it->y;
                 v2.z = it->z;
+                v2.espessura = it->espessura;
 
-                drawTriangle(v1,v2);
+                drawSolido(v1,v2);
             }else{
                 break;
             }
@@ -176,6 +266,7 @@ void calculaCoordenadasPonto(float x, float y){
     novo->x = pointX;
     novo->y = pointY;
     novo->z = alturaZPonto;
+    novo->espessura = espessuraGlobal;
     grupos[indexGrupoAtual].push_back(*novo);
 }
 
@@ -266,11 +357,11 @@ void keyboard (unsigned char key, int x, int y){
             break;
         case '.':
         //Aumenta espessura do modelo 3D
-            espessura +=0.2;
+            espessuraGlobal +=0.2;
             break;
         case ',':
-            if(espessura > 0.4){
-                espessura -= 0.2
+            if(espessuraGlobal > 0.4){
+                espessuraGlobal -= 0.2;
             }
             break;
         case 's':
