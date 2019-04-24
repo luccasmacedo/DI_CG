@@ -133,7 +133,7 @@ void drawTriangle(vertice v1, vertice v2, vertice v3, vertice v4)
     glEnd();
 }
 
-void drawSolido(vertice v1, vertice v2)
+void drawSolido(vertice v1, vertice v2, int indexGrupo)
 {
     vertice ortogonal;
     CalculoOrtogonal(v1, v2, &ortogonal);
@@ -172,7 +172,7 @@ void drawSolido(vertice v1, vertice v2)
     v10.y = v6.y;
     v10.z = v2.z;
 
-    if(grupos[indexGrupoAtual].size() > 2 && entraIf)
+    if(grupos[indexGrupo].size() > 2 && entraIf)
     {
         v3 = oldVector[0];
         v7 = oldVector[1];
@@ -259,7 +259,7 @@ void modela3D()
                 v2.z = it->z;
                 v2.espessura = it->espessura;
 
-                drawSolido(v1,v2);
+                drawSolido(v1,v2,i);
             }
             else
             {
@@ -301,22 +301,23 @@ void carregaModelo()
             float auxArray[4];
 
             //Separa campos para serem armazenados
-            while ((pos = line.find(delimiter)) != std::string::npos) {
+            while ((pos = line.find(delimiter)) != std::string::npos)
+            {
                 token = line.substr(0, pos);
                 line.erase(0, pos + delimiter.length());
                 auxArray[j] = stof(token);
                 j++;
 
             }
-                vertice *novo = new vertice();
-                novo->x = auxArray[0];
-                novo->y = auxArray[1];
-                novo->z = auxArray[2];
-                novo->espessura = auxArray[3];
-                grupos[indexGrupoAtual].push_back(*novo);
+            vertice *novo = new vertice();
+            novo->x = auxArray[0];
+            novo->y = auxArray[1];
+            novo->z = auxArray[2];
+            novo->espessura = auxArray[3];
+            grupos[indexGrupoAtual].push_back(*novo);
         }
         myfile.close();
-        indexGrupoAtual++;
+        //indexGrupoAtual++;
     }
     else cout << "Unable to open file";
 }
@@ -327,20 +328,19 @@ void salvaModelo()
     int result;
 
     char nomeArquivo[100];
-    for(int i = 0; i < grupos.size(); i++)
+
+    printf("Digite o nome do arquivo para salvar o grupo atual: \n");
+    cin >> nomeArquivo;
+
+    strcat(nomeArquivo,".txt");
+    arq = fopen(nomeArquivo, "wt");  /// Cria um arquivo texto para gravação
+
+    for(list<vertice>::iterator it = grupos[indexGrupoAtual].begin(); it != grupos[indexGrupoAtual].end(); it++)
     {
-        printf("Digite o nome do arquivo para salvar o grupo %d: \n",i);
-        cin >> nomeArquivo;
-
-        strcat(nomeArquivo,".txt");
-        arq = fopen(nomeArquivo, "wt");  /// Cria um arquivo texto para gravação
-
-        for(list<vertice>::iterator it = grupos[i].begin(); it != grupos[i].end(); it++)
-        {
-            /// formato: x y z espessura
-            result = fprintf(arq,"%f %f %f %f \n",it->x, it->y, it->z, it->espessura);
-        }
+        /// formato: x y z espessura
+        result = fprintf(arq,"%f %f %f %f \n",it->x, it->y, it->z, it->espessura);
     }
+
 
     fclose(arq);
 
@@ -573,7 +573,7 @@ void exibeMenu()
     printf(". Aumenta espessura do modelo gerado.\n");
     printf(", Diminui espessura do modelo gerado.\n");
     printf("ESC para sair.\n");
-    printf("-------------------------------------\n");
+    printf("-------------------------------------\n\n");
 }
 /// Main
 int main(int argc, char** argv)
