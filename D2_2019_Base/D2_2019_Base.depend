@@ -1,0 +1,9 @@
+# depslib dependency file v1.0
+1557433679 source:/home/luccas/Documentos/Faculdade/CG/CG/D2_2019_Base/main.cpp
+	<iostream>
+	<GL/glut.h>
+	<vector>
+	<stdlib.h>
+	<string.h>
+	<math.h>
+

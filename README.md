@@ -1,29 +1,16 @@
-# DI_CG
-Trabalho 1 CG 
+# D2_CG
+Desenvolvimento 2
+Visualizador de arquivos Ply
+Desenvolvimento de um aplicativo para leitura e visualização de arquivos no formato PLY;
 
-MODELAGEM DE AMBIENTES VIRTUAIS
+1 Criar classes para gerenciar vertices, poligonos, normais etc;
+2 Utilizar metodos de iluminação;
+3 representação em 2 modos distintos:
+	wireframe;
+	superficie;
+4 centralizar objetos e tamanhos parecidos;
+5 reshape; fullscreen; numero de triangulos mostrado na janela;
+6 rotação e zoom ; alternar objetos; ESC;
 
-Agora os pontos gerarão estruturas com volume;
-Ao inserir dois pontos na interface 2D, será gerado um bloco retangularcom 6 faces;
-O espaçamento a ser utilizado para definir a espessura da estrutura 3D poderá ser modificado durante a modelagem;
-
-Persistencia dos dados
-Forma de salvar e carregar as estruturas que forem modeladas;
-Pedir nome para salvar e carregar o arquivo;
-
-Visualização e interação
--Exibir menu com opções de interação;
--s para salvar modelo;
--l para carregar modelo;
--F12 fullscreen;
--. para aumentar a espessura do modelo;
--, para diminuir a espessura do modelo;
-
-Observações:
--Ao criar um novo segmento de reta, reposicionar os pontos gerados anteriormente; Ou seja, o cálculo do novo vetor normal deve ser levado em conta para o ponto que pertence ao segmento de reta anteriormente;
-
--Armazenamento do ponto clicado na interface 2D e não de suas projeçoes a partir do vetor normal; Ou seja, as projeçoes vão ser calculadas todo momento;
-
--Como representar espessura? 
- -Atributo na classe vértice?
- -
+*Carregar os arquivos todos de uma unica vez;
+*setar propriedades dos materiais;

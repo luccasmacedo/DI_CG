@@ -29,5 +29,6 @@
 		<Project filename="src/shaderExample.cbp" />
 		<Project filename="src/openglVersion.cbp" />
 		<Project filename="D1_20191_Base/linux64.cbp" />
+		<Project filename="D2_2019_Base/D2_2019_Base.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>
