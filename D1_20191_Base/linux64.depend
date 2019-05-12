@@ -37,3 +37,41 @@
 1554238616 /home/ubuntu-thalita/Documentos/Git-CG/DI_CG/shared/glcFPSViewer.h
 	"glcFPSViewer.h"
 
+1557693284 source:/home/ubuntu-thalita/Documentos/CG - 2019/D2/DI_CG/D1_20191_Base/main.cpp
+	<GL/glut.h>
+	<stdlib.h>
+	<iostream>
+	<stdio.h>
+	<ctype.h>
+	<math.h>
+	<list>
+	<string.h>
+	"extras.h"
+	<../shared/glcFPSViewer.h>
+	<vector>
+	<fstream>
+
+1557693232 /home/ubuntu-thalita/Documentos/CG - 2019/D2/DI_CG/D1_20191_Base/extras.h
+
+1557693232 /home/ubuntu-thalita/Documentos/CG - 2019/D2/DI_CG/shared/glcFPSViewer.h
+	"glcFPSViewer.h"
+
+1557693284 source:/home/ubuntu-thalita/Documentos/D2/DI_CG/D1_20191_Base/main.cpp
+	<GL/glut.h>
+	<stdlib.h>
+	<iostream>
+	<stdio.h>
+	<ctype.h>
+	<math.h>
+	<list>
+	<string.h>
+	"extras.h"
+	<../shared/glcFPSViewer.h>
+	<vector>
+	<fstream>
+
+1557693232 /home/ubuntu-thalita/Documentos/D2/DI_CG/D1_20191_Base/extras.h
+
+1557693232 /home/ubuntu-thalita/Documentos/D2/DI_CG/shared/glcFPSViewer.h
+	"glcFPSViewer.h"
+
