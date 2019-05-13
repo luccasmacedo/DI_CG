@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1557712326 source:/home/luccas/Documentos/Faculdade/CG/CG/D1_20191_Base/main.cpp
+1557714307 source:/home/luccas/Documentos/Faculdade/CG/CG/D1_20191_Base/main.cpp
 	<GL/glut.h>
 	<stdlib.h>
 	<iostream>

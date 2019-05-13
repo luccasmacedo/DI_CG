@@ -42,7 +42,7 @@ public:
 };
 
 /// Globals
-float zdist = 50.0;
+float zdist = 30.0;
 float rotationX = 0.0, rotationY = 0.0;
 int  last_x, last_y;
 int  width, height;
@@ -109,15 +109,15 @@ void drawTriangle(vertice v1, vertice v2, vertice v3)
 }
 
 
-void showInfoOnTitle(int group,float height)
+void showInfoOnTitle()
 {
     static char title[256] = {0};
     char aux1[32];
-    sprintf(aux1,"Grupo atual: %.1d, ",group);
+    sprintf(aux1,"Figura atual: %.1d, ",indexGrupoAtual);
     char aux2[32];
-    sprintf(aux2,"Altura do ponto: %.1f",height);
+    sprintf(aux2,"Quantida de poligonos: %.1d",arquivos[indexGrupoAtual].faces.size());
 
-    strcpy(title, "Modelagem 2D-3D, " );
+    strcpy(title, "Visualizador de Arquivos Ply, " );
     strcat(title,aux1);
     strcat(title,aux2);
     strcat(title," - Pressione ESC para sair");
@@ -143,9 +143,7 @@ void display(void)
 {
     glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    showInfoOnTitle(indexGrupoAtual,1);
-
-
+    showInfoOnTitle();
 
     glViewport ((int) 0, (int) 0, (int)  width, (int) height);
     glEnable(GL_DEPTH_TEST);
@@ -181,7 +179,12 @@ void reshape (int w, int h)
 
 void keyboard (unsigned char key, int x, int y)
 {
-
+    switch (tolower(key))
+    {
+    case 27:
+        exit(0);
+        break;
+    }
 }
 
 // Motion callback
@@ -198,7 +201,7 @@ void motion(int x, int y )
 // Mouse callback
 void mouse(int button, int state, int x, int y)
 {
-    if ( button == GLUT_LEFT_BUTTON && state == GLUT_DOWN )
+    if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN )
     {
         last_x = x;
         last_y = y;
@@ -220,20 +223,15 @@ void specialKeysPress(int key, int x, int y)
     switch(key)
     {
     case GLUT_KEY_RIGHT:
-        //Troca grupo e cria se necessário
-        indexGrupoAtual++;
-        if(indexGrupoAtual >= arquivos.size())
-            indexGrupoAtual--;
+        if(indexGrupoAtual < VECTOR_SIZE - 1)
+            indexGrupoAtual++;
         break;
+
     case GLUT_KEY_LEFT:
-        //troca grupo
         if(indexGrupoAtual > 0)
-        {
             indexGrupoAtual--;
-        }
         break;
-    default:
-        break;
+
     case GLUT_KEY_F12:
         //Modo Fullscreen
         fullSreen = !fullSreen;
@@ -246,6 +244,7 @@ void specialKeysPress(int key, int x, int y)
             glutReshapeWindow(800,600);
             glutPositionWindow(100,100);
         }
+        break;
     }
     glutPostRedisplay();
 }
@@ -260,10 +259,12 @@ void readPlyFiles(string arquivo);
 void readPlyFiles()
 {
     arquivos.resize(VECTOR_SIZE);
-    for(int i = 0; i < 1; i++)
+    for(int i = 0; i < VECTOR_SIZE; i++)
     {
         readPlyFiles(fileName[i]);
+        indexGrupoAtual++;
     }
+    indexGrupoAtual--;
 }
 
 void init(void)
@@ -277,7 +278,6 @@ void init(void)
 int main(int argc, char** argv)
 {
     //Definição do primeiro grupo(padrao)
-
     exibeMenu();
     glutInit(&argc, argv);
     glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
