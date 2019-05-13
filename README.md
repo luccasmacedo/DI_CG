@@ -14,3 +14,9 @@ Desenvolvimento de um aplicativo para leitura e visualização de arquivos no fo
 
 *Carregar os arquivos todos de uma unica vez;
 *setar propriedades dos materiais;
+
+falta:
+
+centralizar;
+tamanho padrão;
+

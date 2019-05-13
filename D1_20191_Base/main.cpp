@@ -7,7 +7,6 @@
 #include <list>
 #include <string.h>
 #include "extras.h"
-#include <../shared/glcFPSViewer.h>
 #include <vector>
 #include <fstream>
 #define VECTOR_SIZE 6
@@ -39,16 +38,53 @@ class figure
 public:
     vector<vertice> vertex;
     vector<polygon> faces;
+    float matriz [3][4];
+    vertice medio;
 };
 
 /// Globals
 float zdist = 30.0;
-float rotationX = 0.0, rotationY = 0.0;
+float rotationX = 25.0, rotationY = 0.0;
 int  last_x, last_y;
-int  width, height;
-int click = 0;
+int  width = 800, height = 600;
 bool fullSreen = false;
 int indexGrupoAtual = 0;
+bool wireframe = false;
+bool superficie = true;
+
+float matrizIluminacao[6][3][4] =
+{
+    {
+        {.1745, .01175, .01175, 1.0},
+        {.61424, .04136, .04136, 1.0},
+        {.727811, .626959, .626959, 1.0}
+    },
+    {
+        {.0518, .09175, .01175, 1.0 },
+        {.5424, .0836, .04136, 1.0 },
+        {.17811, .99959, .626959, 1.0}
+    },
+    {
+        {0.2f, 0.2f, 0.2f, 1.0f},
+        {0.7f, 0.7f, 0.7f, 1.0f},
+        {0.1f, 0.1f, 0.1f, 1.0f}
+    },
+    {
+        {1.0f, 0.05f, 1.0f, 1.0f},
+        {1.0f, 0.0f, 0.8787f, 1.0f},
+        {0.0044f, 0.970f, 0.789f, 1.0f}
+    },
+    {
+        {0.1515f, 0.21848f, 0.3887f, 1.0f},
+        {0.387f, 0.898f, 0.7488f, 1.0f},
+        {0.0018f, 0.0489f, 0.7850f, 1.0f}
+    },
+    {
+        {0.17f, 0.01f, 0.01f, 0.55f},
+        {0.61f, 0.04f, 0.04f, 0.55f},
+        {0.73f, 0.63f, 0.63f, 0.55f}
+    }
+};
 
 string fileName[VECTOR_SIZE] = {"budda.ply",
                                 "bunny.ply",
@@ -96,6 +132,8 @@ void CalculaNormal(triangle t, vertice *vn)
 //FUNÇÃO QUE DESENHA OS TRIANGULOS, UM POR VEZ
 void drawTriangle(vertice v1, vertice v2, vertice v3)
 {
+    //glTranslatef(-arquivos[indexGrupoAtual].medio.x, -arquivos[indexGrupoAtual].medio.y, -arquivos[indexGrupoAtual].medio.z);
+
     vertice vetorNormal;
     triangle t = {v1,v2,v3};
 
@@ -108,7 +146,15 @@ void drawTriangle(vertice v1, vertice v2, vertice v3)
     glEnd();
 }
 
-
+void drawTriangleWireframe(vertice v1, vertice v2, vertice v3)
+{
+    //glTranslatef(-arquivos[indexGrupoAtual].medio.x, -arquivos[indexGrupoAtual].medio.y, -arquivos[indexGrupoAtual].medio.z);
+    glBegin(GL_LINE_LOOP);
+    glVertex3f(v1.x, v1.y, v1.z);
+    glVertex3f(v2.x, v2.y, v2.z);
+    glVertex3f(v3.x, v3.y, v3.z);
+    glEnd();
+}
 void showInfoOnTitle()
 {
     static char title[256] = {0};
@@ -125,17 +171,59 @@ void showInfoOnTitle()
     glutSetWindowTitle(title);
 }
 
+void SetMaterial(float arrayAmbiente[], float arrayDifusa[], float arrayEspecular[]);
+
 void modelaObjeto()
 {
-    for(int i = 0; i < arquivos[indexGrupoAtual].faces.size(); i++){
-        int index[3];
-        index[0] = arquivos[indexGrupoAtual].faces[i].vertices[0];
-        index[1] = arquivos[indexGrupoAtual].faces[i].vertices[1];
-        index[2] = arquivos[indexGrupoAtual].faces[i].vertices[2];
+    SetMaterial(arquivos[indexGrupoAtual].matriz[0], arquivos[indexGrupoAtual].matriz[1], arquivos[indexGrupoAtual].matriz[2] );
+    for(int i = 0; i < arquivos[indexGrupoAtual].faces.size(); i++)
+    {
 
-        drawTriangle(arquivos[indexGrupoAtual].vertex[index[0]],
-                     arquivos[indexGrupoAtual].vertex[index[1]],
-                     arquivos[indexGrupoAtual].vertex[index[2]]);
+        if(arquivos[indexGrupoAtual].faces[i].vertices.size() == 3)
+        {
+            int index[3];
+            index[0] = arquivos[indexGrupoAtual].faces[i].vertices[0];
+            index[1] = arquivos[indexGrupoAtual].faces[i].vertices[1];
+            index[2] = arquivos[indexGrupoAtual].faces[i].vertices[2];
+
+            if(superficie)
+            {
+                drawTriangle(arquivos[indexGrupoAtual].vertex[index[0]],
+                             arquivos[indexGrupoAtual].vertex[index[1]],
+                             arquivos[indexGrupoAtual].vertex[index[2]]);
+            }
+            else
+            {
+                drawTriangleWireframe(arquivos[indexGrupoAtual].vertex[index[0]],
+                                      arquivos[indexGrupoAtual].vertex[index[1]],
+                                      arquivos[indexGrupoAtual].vertex[index[2]]);
+            }
+        }
+        else
+        {
+            int index[4];
+            index[0] = arquivos[indexGrupoAtual].faces[i].vertices[0];
+            index[1] = arquivos[indexGrupoAtual].faces[i].vertices[1];
+            index[2] = arquivos[indexGrupoAtual].faces[i].vertices[2];
+            index[3] = arquivos[indexGrupoAtual].faces[i].vertices[3];
+
+            if(superficie)
+            {
+                drawTriangle(arquivos[indexGrupoAtual].vertex[index[0]],
+                             arquivos[indexGrupoAtual].vertex[index[1]],
+                             arquivos[indexGrupoAtual].vertex[index[2]]);
+
+                drawTriangle(arquivos[indexGrupoAtual].vertex[index[2]],
+                             arquivos[indexGrupoAtual].vertex[index[3]],
+                             arquivos[indexGrupoAtual].vertex[index[0]]);
+            }
+            else
+            {
+                drawTriangleWireframe(arquivos[indexGrupoAtual].vertex[index[2]],
+                                      arquivos[indexGrupoAtual].vertex[index[3]],
+                                      arquivos[indexGrupoAtual].vertex[index[0]]);
+            }
+        }
     }
 }
 
@@ -145,7 +233,7 @@ void display(void)
 
     showInfoOnTitle();
 
-    glViewport ((int) 0, (int) 0, (int)  width, (int) height);
+    glViewport(0,0,(GLsizei)width, (GLsizei)height);
     glEnable(GL_DEPTH_TEST);
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -153,13 +241,15 @@ void display(void)
     glMatrixMode (GL_PROJECTION);
     glLoadIdentity ();
     gluPerspective(60.0, (GLfloat) (width)/(GLfloat) height, 1.0, 200.0);
-    gluLookAt (0.0, 0.0, zdist, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
-
 
     glMatrixMode (GL_MODELVIEW);
+    glLoadIdentity ();
+    gluLookAt (0.0, 0.0, zdist, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+
     glPushMatrix();
     glRotatef( rotationY, 0.0, 1.0, 0.0 );
     glRotatef( rotationX, 1.0, 0.0, 0.0 );
+    glTranslatef(-arquivos[indexGrupoAtual].medio.x, -arquivos[indexGrupoAtual].medio.y, -arquivos[indexGrupoAtual].medio.z);
     modelaObjeto();
     glPopMatrix();
 
@@ -184,6 +274,13 @@ void keyboard (unsigned char key, int x, int y)
     case 27:
         exit(0);
         break;
+    case 'w':
+        wireframe = true;
+        superficie = false;
+        break;
+    case 's':
+        superficie = true;
+        wireframe = false;
     }
 }
 
@@ -205,8 +302,6 @@ void mouse(int button, int state, int x, int y)
     {
         last_x = x;
         last_y = y;
-        click = 1;
-
     }
     if(button == 3) // Scroll up
     {
@@ -251,7 +346,12 @@ void specialKeysPress(int key, int x, int y)
 
 void exibeMenu()
 {
-
+    printf("--------------MENU----------------\n");
+    printf("<- e -> para alternar entre os objetos.\n");
+    printf("w para representação no modo wireframe\n");
+    printf("s para representação no modo superficie(PADRÂO)\n");
+    printf("Utlize o mouse para rotacionar o objeto\n");
+    printf("------------------------------------\n");
 }
 
 void readPlyFiles(string arquivo);
@@ -262,16 +362,25 @@ void readPlyFiles()
     for(int i = 0; i < VECTOR_SIZE; i++)
     {
         readPlyFiles(fileName[i]);
+
+        for(int i = 0; i < 3; i++)
+        {
+            for(int j = 0; j < 4; j++)
+            {
+                arquivos[indexGrupoAtual].matriz[i][j] = matrizIluminacao[indexGrupoAtual][i][j];
+            }
+        }
         indexGrupoAtual++;
     }
-    indexGrupoAtual--;
+    indexGrupoAtual = 0;
 }
 
 void init(void)
 {
     readPlyFiles();
     initLight(width, height); // Função extra para tratar iluminação.
-    setMaterials();
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
 }
 
 /// Main
@@ -328,7 +437,6 @@ void readPlyFiles(string arquivo)
     int num_propriedades = 0;
 
     //loop por cada linha do arquivo
-    printf("--------------Lendo .ply----------------\n");
     while(fgets(buff, sizeof(buff), file))
     {
 
@@ -341,7 +449,6 @@ void readPlyFiles(string arquivo)
 
             while(palavra != NULL)
             {
-                printf("palavra = %s \n",palavra);
 
                 if(strcmp (palavra, "vertex") == 0)
                 {
@@ -369,13 +476,14 @@ void readPlyFiles(string arquivo)
             }
 
         }
-        //se é a palavra 'element',paga o numero de vertices e faces
-      //termino do header
+        //termino do header
+        vertice v_min, v_max;
         if(buff[0] == 'e' && buff[1] == 'n' && buff[2] == 'd')
         {
             arquivos[indexGrupoAtual].vertex.resize(num_vertices);
             arquivos[indexGrupoAtual].faces.resize(num_faces);
             int cont = 0;
+            //Leitura dos vertices
             while(fgets(buff, sizeof(buff), file))
             {
                 char* vertice = strtok(buff, " ");
@@ -389,18 +497,53 @@ void readPlyFiles(string arquivo)
                 vertice = strtok(NULL, " ");
                 arquivos[indexGrupoAtual].vertex[cont].z = atof(vertice);
 
+                if(cont == 0)
+                {
+                    v_min.x = arquivos[indexGrupoAtual].vertex[cont].x;
+                    v_min.y = arquivos[indexGrupoAtual].vertex[cont].y;
+                    v_min.z = arquivos[indexGrupoAtual].vertex[cont].z;
+
+                    v_max.x = arquivos[indexGrupoAtual].vertex[cont].x;
+                    v_max.y = arquivos[indexGrupoAtual].vertex[cont].y;
+                    v_max.z = arquivos[indexGrupoAtual].vertex[cont].z;
+                }
+                else
+                {
+                    if(v_min.x > arquivos[indexGrupoAtual].vertex[cont].x)
+                        v_min.x = arquivos[indexGrupoAtual].vertex[cont].x;
+                    if(v_min.y > arquivos[indexGrupoAtual].vertex[cont].y)
+                        v_min.y = arquivos[indexGrupoAtual].vertex[cont].y;
+                    if(v_min.z > arquivos[indexGrupoAtual].vertex[cont].z)
+                        v_min.z = arquivos[indexGrupoAtual].vertex[cont].z;
+
+                    if(v_max.x < arquivos[indexGrupoAtual].vertex[cont].x)
+                        v_max.x = arquivos[indexGrupoAtual].vertex[cont].x;
+                    if(v_max.y < arquivos[indexGrupoAtual].vertex[cont].y)
+                        v_max.y = arquivos[indexGrupoAtual].vertex[cont].y;
+                    if(v_max.z < arquivos[indexGrupoAtual].vertex[cont].z)
+                        v_max.z = arquivos[indexGrupoAtual].vertex[cont].z;
+                }
+
                 cont++;
+
                 if(cont == num_vertices)
                     break;
             }
+
+            arquivos[indexGrupoAtual].medio.x = (v_min.x + v_max.x)/2.0;
+            arquivos[indexGrupoAtual].medio.y = (v_min.y + v_max.y)/2.0;
+            arquivos[indexGrupoAtual].medio.z = (v_min.z + v_max.z)/2.0;
+
             int k = 0;
+            ///Leitura dos poligonos
             while(fgets(buff, sizeof(buff), file))
             {
                 int tam  = atoi(strtok(buff, " "));
                 arquivos[indexGrupoAtual].faces[k].vertices.resize(tam);
 
                 char* verticeFace = strtok(NULL, " ");
-                for (int j = 0; j < tam; j++){
+                for (int j = 0; j < tam; j++)
+                {
                     arquivos[indexGrupoAtual].faces[k].vertices[j] = stoi(verticeFace);
                     verticeFace = strtok(NULL, " ");
                 }
@@ -409,26 +552,20 @@ void readPlyFiles(string arquivo)
             fclose(file);
         }
     }
-
-    printf("SAI \n");
-    printf("v = %d \n", num_vertices);
-    printf("f = %d \n", num_faces);
-    printf("p = %d \n", num_propriedades);
 }
 
-///Aqui segue os materiais. Um para cada objeto
-/**
-void SetMaterial(){
+void SetMaterial(float arrayAmbiente[], float arrayDifusa[], float arrayEspecular[])
+{
 
-   // Material do objeto (neste caso, ruby). Parametros em RGBA
-   GLfloat objeto_ambient[]   = { .1745, .01175, .01175, 1.0 };
-   GLfloat objeto_difusa[]    = { .61424, .04136, .04136, 1.0 };
-   GLfloat objeto_especular[] = { .727811, .626959, .626959, 1.0 };
-   GLfloat objeto_brilho[]    = { 90.0f };
+    // Material do objeto (neste caso, ruby). Parametros em RGBA
+    GLfloat objeto_ambient[]   = {arrayAmbiente[0], arrayAmbiente[1],arrayAmbiente[2],arrayAmbiente[3]};
+    GLfloat objeto_difusa[]    = {arrayDifusa[0], arrayDifusa[1], arrayDifusa[2], arrayDifusa[3]};
+    GLfloat objeto_especular[] = {arrayEspecular[0], arrayEspecular[1], arrayEspecular[2], arrayEspecular[3]};
+    GLfloat objeto_brilho[]    = { 90.0f };
 
-   // Define os parametros da superficie a ser iluminada
-   glMaterialfv(GL_FRONT, GL_AMBIENT, objeto_ambient);
-   glMaterialfv(GL_FRONT, GL_DIFFUSE, objeto_difusa);
-   glMaterialfv(GL_FRONT, GL_SPECULAR, objeto_especular);
-   glMaterialfv(GL_FRONT, GL_SHININESS, objeto_brilho);
-}**/
+    // Define os parametros da superficie a ser iluminada
+    glMaterialfv(GL_FRONT, GL_AMBIENT, objeto_ambient);
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, objeto_difusa);
+    glMaterialfv(GL_FRONT, GL_SPECULAR, objeto_especular);
+    glMaterialfv(GL_FRONT, GL_SHININESS, objeto_brilho);
+}
