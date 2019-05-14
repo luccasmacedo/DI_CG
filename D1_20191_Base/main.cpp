@@ -40,11 +40,15 @@ public:
     vector<polygon> faces;
     float matriz [3][4];
     vertice medio;
+    float scale_factor[3];
+    float zdist_begin;
+    float zdist_min;
+    float zdist_max;
 };
 
 /// Globals
-float zdist = 30.0;
-float rotationX = 25.0, rotationY = 0.0;
+float zdist = 3.0;
+float rotationX = 0.0, rotationY = 0.0;
 int  last_x, last_y;
 int  width = 800, height = 600;
 bool fullSreen = false;
@@ -133,12 +137,10 @@ void CalculaNormal(triangle t, vertice *vn)
 void drawTriangle(vertice v1, vertice v2, vertice v3)
 {
     //glTranslatef(-arquivos[indexGrupoAtual].medio.x, -arquivos[indexGrupoAtual].medio.y, -arquivos[indexGrupoAtual].medio.z);
-
     vertice vetorNormal;
     triangle t = {v1,v2,v3};
 
     glBegin(GL_TRIANGLES);
-
     CalculaNormal(t, &vetorNormal); // Passa face triangular e endereço do vetor normal de saída
     glNormal3f(vetorNormal.x, vetorNormal.y,vetorNormal.z);
     for(int j = 0; j < 3; j++) // vertices do triangulo
@@ -161,7 +163,8 @@ void showInfoOnTitle()
     char aux1[32];
     sprintf(aux1,"Figura atual: %.1d, ",indexGrupoAtual);
     char aux2[32];
-    sprintf(aux2,"Quantida de poligonos: %.1d",arquivos[indexGrupoAtual].faces.size());
+    //sprintf(aux2,"Quantidade de poligonos: %.1d",arquivos[indexGrupoAtual].faces.size());
+    sprintf(aux2,"zdist: %.2f",zdist);
 
     strcpy(title, "Visualizador de Arquivos Ply, " );
     strcat(title,aux1);
@@ -178,7 +181,6 @@ void modelaObjeto()
     SetMaterial(arquivos[indexGrupoAtual].matriz[0], arquivos[indexGrupoAtual].matriz[1], arquivos[indexGrupoAtual].matriz[2] );
     for(int i = 0; i < arquivos[indexGrupoAtual].faces.size(); i++)
     {
-
         if(arquivos[indexGrupoAtual].faces[i].vertices.size() == 3)
         {
             int index[3];
@@ -249,6 +251,7 @@ void display(void)
     glPushMatrix();
     glRotatef( rotationY, 0.0, 1.0, 0.0 );
     glRotatef( rotationX, 1.0, 0.0, 0.0 );
+    glScalef(arquivos[indexGrupoAtual].scale_factor[0],arquivos[indexGrupoAtual].scale_factor[1],arquivos[indexGrupoAtual].scale_factor[2]);
     glTranslatef(-arquivos[indexGrupoAtual].medio.x, -arquivos[indexGrupoAtual].medio.y, -arquivos[indexGrupoAtual].medio.z);
     modelaObjeto();
     glPopMatrix();
@@ -305,11 +308,13 @@ void mouse(int button, int state, int x, int y)
     }
     if(button == 3) // Scroll up
     {
-        zdist+=1.0f;
+        if(zdist < arquivos[indexGrupoAtual].zdist_max)
+            zdist+=0.5f;
     }
     if(button == 4) // Scroll Down
     {
-        zdist-=1.0f;
+        if(zdist > arquivos[indexGrupoAtual].zdist_min)
+            zdist-=0.5f;
     }
 }
 
@@ -318,13 +323,17 @@ void specialKeysPress(int key, int x, int y)
     switch(key)
     {
     case GLUT_KEY_RIGHT:
-        if(indexGrupoAtual < VECTOR_SIZE - 1)
+        if(indexGrupoAtual < VECTOR_SIZE - 1){
             indexGrupoAtual++;
+            zdist = arquivos[indexGrupoAtual].zdist_begin;
+            }
         break;
 
     case GLUT_KEY_LEFT:
-        if(indexGrupoAtual > 0)
+        if(indexGrupoAtual > 0){
             indexGrupoAtual--;
+            zdist = arquivos[indexGrupoAtual].zdist_begin;
+            }
         break;
 
     case GLUT_KEY_F12:
@@ -373,6 +382,48 @@ void readPlyFiles()
         indexGrupoAtual++;
     }
     indexGrupoAtual = 0;
+
+    arquivos[0].scale_factor[0] = 6;
+    arquivos[0].scale_factor[1] = 6;
+    arquivos[0].scale_factor[2] = 6;
+    arquivos[0].zdist_begin = 2;
+    arquivos[0].zdist_min = 1.5;
+    arquivos[0].zdist_max = 10.0;
+
+    arquivos[1].scale_factor[0] = 6;
+    arquivos[1].scale_factor[1] = 6;
+    arquivos[1].scale_factor[2] = 6;
+    arquivos[1].zdist_begin = 3;
+    arquivos[1].zdist_min = 1.5;
+    arquivos[1].zdist_max = 10.0;
+
+    arquivos[2].scale_factor[0] = 1;
+    arquivos[2].scale_factor[1] = 1;
+    arquivos[2].scale_factor[2] = 1;
+    arquivos[2].zdist_begin = 7.0;
+    arquivos[2].zdist_min = 3.5;
+    arquivos[2].zdist_max = 20.0;
+
+    arquivos[3].scale_factor[0] = 6;
+    arquivos[3].scale_factor[1] = 6;
+    arquivos[3].scale_factor[2] = 6;
+    arquivos[3].zdist_begin = 4.0;
+    arquivos[3].zdist_min = 2.0;
+    arquivos[3].zdist_max = 10.0;
+
+    arquivos[4].scale_factor[0] = 6;
+    arquivos[4].scale_factor[1] = 6;
+    arquivos[4].scale_factor[2] = 6;
+    arquivos[4].zdist_begin = 4.0;
+    arquivos[4].zdist_min = 2.0;
+    arquivos[4].zdist_max = 10.0;
+
+    arquivos[5].scale_factor[0] = 1;
+    arquivos[5].scale_factor[1] = 1;
+    arquivos[5].scale_factor[2] = 1;
+    arquivos[5].zdist_begin = 10.0;
+    arquivos[5].zdist_min = 5.0;
+    arquivos[5].zdist_max = 30.0;
 }
 
 void init(void)
