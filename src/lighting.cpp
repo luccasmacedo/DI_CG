@@ -41,9 +41,9 @@ void init(void)
 void setMaterial(void)
 {
     // Material do objeto (neste caso, ruby). Parametros em RGBA
-    GLfloat objeto_ambient[]   = { .1745, .01175, .01175, 1.0 };
-    GLfloat objeto_difusa[]    = { .61424, .04136, .04136, 1.0 };
-    GLfloat objeto_especular[] = { .727811, .626959, .626959, 1.0 };
+    GLfloat objeto_ambient[]   = { .0745, .01175, .11175, 1.0 };
+    GLfloat objeto_difusa[]    = { .01424, .04136, .14136, 1.0 };
+    GLfloat objeto_especular[] = { .627811, .626959, .726959, 1.0 };
     GLfloat objeto_brilho[]    = { 90.0f };
 
     // Define os parametros da superficie a ser iluminada

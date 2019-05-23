@@ -5,3 +5,9 @@
 	<stdlib.h>
 	<math.h>
 
+1554404926 source:/home/ubuntu-thalita/Documentos/Git-CG/DI_CG/src/viewport.cpp
+	<GL/glut.h>
+	<stdio.h>
+	<stdlib.h>
+	<math.h>
+

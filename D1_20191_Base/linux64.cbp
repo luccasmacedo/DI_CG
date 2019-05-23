@@ -37,6 +37,8 @@
 			<Add library="../shared/glcFPSViewer.cpp" />
 			<Add directory="../shared" />
 		</Linker>
+		<Unit filename="camera.cpp" />
+		<Unit filename="camera.h" />
 		<Unit filename="extras.h" />
 		<Unit filename="main.cpp" />
 		<Extensions>

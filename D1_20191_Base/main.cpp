@@ -22,6 +22,7 @@ class vertice
 public:
     float x,y,z;
     float espessura;
+    int indexMaterial;
 };
 
 class triangle
@@ -40,7 +41,7 @@ public:
 float zdist = 30.0;
 
 //Coordenada z do ponto criado
-float alturaZPonto = 1.0;
+float alturaZPonto = 3.0;
 float rotationX = 0.0, rotationY = 0.0;
 int  last_x, last_y;
 int  width, height;
@@ -54,10 +55,8 @@ int indexGrupoAtual = 0;
 Camera  g_camera;
 bool 	g_key[256];
 bool 	g_shift_down = false;
-int 	g_viewport_width = 700;
-int 	g_viewport_height = 600;
-bool 	g_mouse_left_down = false;
-bool	g_mouse_right_down = false;
+int 	g_viewport_width = 0;
+int 	g_viewport_height = 0;
 bool	fullscreen = false;	// Fullscreen Flag Set To Fullscreen Mode By Default
 bool 	inverseMouse = false;
 bool	boostSpeed = false; // Change keyboard speed
@@ -67,7 +66,6 @@ bool	releaseMouse = false;
 // Movement settings
 float g_translation_speed = 0.05;
 float g_rotation_speed = M_PI/180*0.2;
-float initialY = 2; // initial height of the camera (flymode off value)
 
 /** determina qual view port esta visivil**/
 bool viewPort = true;
@@ -78,6 +76,8 @@ list<vertice> grupoAtual;
 void readPlyFiles(char *arquivo);
 void KeyboardUp(unsigned char key, int x, int y);
 void MouseMotion(int x, int y);
+void modela3D();
+void initLuzScene();
 
 void KeyboardUp(unsigned char key, int x, int y)
 {
@@ -104,7 +104,6 @@ void Timer(int value)
     {
         g_camera.Strafe(-speed);
     }
-
     glutTimerFunc(1, Timer, 0);
 }
 
@@ -123,43 +122,58 @@ void setMaterial(void)
     glMaterialfv(GL_FRONT, GL_SHININESS, objeto_brilho);
 }
 
+void setMaterialChao(void)
+{
+    // Material do objeto (neste caso, ruby). Parametros em RGBA
+    GLfloat objeto_ambient[]   = { .0745, .01175, .11175, 1.0 };
+    GLfloat objeto_difusa[]    = { .01424, .04136, .14136, 1.0 };
+    GLfloat objeto_especular[] = { .627811, .626959, .726959, 1.0 };
+    GLfloat objeto_brilho[]    = { 0.0f };
+
+    // Define os parametros da superficie a ser iluminada
+    glMaterialfv(GL_FRONT, GL_AMBIENT, objeto_ambient);
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, objeto_difusa);
+    glMaterialfv(GL_FRONT, GL_SPECULAR, objeto_especular);
+    glMaterialfv(GL_FRONT, GL_SHININESS, objeto_brilho);
+}
+
 void scene()
 {
     float size = 110.0f;
-    glDisable(GL_LIGHTING);
-    glColor3f(0.9f, 0.9f, 0.9f);
     glPushMatrix();
     glScalef(size, .1, size);
-    glutSolidCube(1);
-    glPopMatrix();
-    glColor3f(0.8f, 1.0f, 0.8f);
-    glPushMatrix();
-    glTranslatef(0.0f, 20.0f, 0.0f);
-    glScalef(size, .2, size);
-    glutSolidCube(1);
+    setMaterialChao();
+    glutSolidCube(0.5);
     glPopMatrix();
 
-    glEnable(GL_LIGHTING);
-	setMaterial();
-    for(int j = -50; j <= 50; j+=10)
-    {
-        for(int i = -50; i <= 50; i+=10)
-        {
-            glPushMatrix();
-            glTranslated(i, 10, j);
-            glScalef(1.5, 20, 1.5);
-            glutSolidCube(1);
-            glPopMatrix();
-        }
-    }
-    glDisable(GL_LIGHTING);
+    glPushMatrix();
+    glTranslatef(0.0,1.0,0.0);
+    glRotated(-90.0,1.0,0.0,0.0);
+	modela3D();
+	glPopMatrix();
 }
 
 /// Functions
 void init(void)
 {
     initLight(width, height); // Função extra para tratar iluminação.
-    setMaterials();
+}
+
+void initLuzScene(){
+    glClearColor (0.0, 0.0, 0.0, 0.0);
+    glEnable(GL_LIGHT1);                   // habilita luz 0
+
+    // Cor da fonte de luz (RGBA)
+    GLfloat cor_luz[]     = { 1.0, 1.0, 1.0, 1.0};
+
+    // Posicao da fonte de luz. Ultimo parametro define se a luz sera direcional (0.0) ou tera uma posicional (1.0)
+    GLfloat posicao_luz[] = { 50.0, 50.0, 50.0, 1.0};
+
+    // Define parametros da luz
+    glLightfv(GL_LIGHT1, GL_AMBIENT, cor_luz);
+    glLightfv(GL_LIGHT1, GL_DIFFUSE, cor_luz);
+    glLightfv(GL_LIGHT1, GL_SPECULAR, cor_luz);
+    glLightfv(GL_LIGHT1, GL_POSITION, posicao_luz);
 }
 
 void CalculaNormal(triangle t, vertice *vn)
@@ -439,8 +453,6 @@ void salvaModelo()
         /// formato: x y z espessura
         result = fprintf(arq,"%f %f %f %f \n",it->x, it->y, it->z, it->espessura);
     }
-
-
     fclose(arq);
 
     printf("MODELO SALVO \n");
@@ -477,14 +489,14 @@ void display(void)
         glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         /// Index grupo, alturaZPonto
-
         showInfoOnTitle(indexGrupoAtual,alturaZPonto);
 
         ///Desenha primeira ViewPort (2D)
+        glLoadIdentity ();
         glViewport ((int) 0, (int) 0, (int) width/2, (int) height);
 
         glDisable(GL_DEPTH_TEST);
-        //Define cor de fundo da primeira viewport
+        ///Define cor de fundo da primeira viewport
         glScissor((int) 0, (int) 0, (int) width/2, (int) height);
         glEnable(GL_SCISSOR_TEST);
         glClearColor(1.0, 1.0, 1.0, 1.0 );
@@ -531,25 +543,26 @@ void display(void)
         glRotatef( rotationY, 0.0, 1.0, 0.0 );
         glRotatef( rotationX, 1.0, 0.0, 0.0 );
         //Desenha objeto 3D
+        setMaterials();
         modela3D();
         glPopMatrix();
 
         glutSwapBuffers();
     }
     else{
-        g_camera.SetPos(0.0f, 1.0f, 0.0f);
         ///Desenha segunda ViewPort, Navegação (3D)
         glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glClearColor(0.0, 0.0, 0.0, 0.0 );
-
-        glViewport ((int) 0, (int) 0, (int)  width, (int) height);
-
         glDisable(GL_SCISSOR_TEST);
 
         glMatrixMode (GL_PROJECTION);
         glLoadIdentity ();
         gluPerspective(60.0, (GLfloat) (width)/(GLfloat) height, 1.0, 200.0);
+
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity ();
         gluLookAt (0.0, 0.0, zdist, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+        glViewport ((int) 0, (int) 0, (int)  width, (int) height);
 
         /*Objetos 3D*/
         glutSetCursor(GLUT_CURSOR_NONE);
@@ -580,7 +593,6 @@ void reshape (int w, int h)
 
 void keyboard (unsigned char key, int x, int y)
 {
-
     switch (tolower(key))
     {
     case 27:
@@ -596,20 +608,20 @@ void keyboard (unsigned char key, int x, int y)
             espessuraGlobal -= 0.2;
         }
         break;
-    /**
-    case 's':
+
+    case 'z':
         salvaModelo();
         break;
-    **/
     case 'l':
         carregaModelo();
         break;
     case 'm':
         viewPort = !viewPort;
+        g_camera.SetPos(-10.0,3.0,0.0);
         break;
     case 'b':
         boostSpeed = !boostSpeed;
-        (boostSpeed) ? g_translation_speed = 0.2 : g_translation_speed = 0.05;
+        (boostSpeed) ? g_translation_speed = 0.5 : g_translation_speed = 0.5;
         boostSpeed ? printf("BoostMode ON\n") : printf("BoostMode OFF\n");
         break;
     }
@@ -762,9 +774,9 @@ int main(int argc, char** argv)
     grupoAtual = grupo1;
     grupos.push_back(grupo1);
 
-    ///exibeMenu();
+    exibeMenu();
     glutInit(&argc, argv);
-    glutInitDisplayMode (GLUT_DOUBLE | GLUT_DEPTH);
+    glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowSize (800, 600);
     glutInitWindowPosition (100, 100);
     glutCreateWindow ("Edição e Navegação");

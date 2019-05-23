@@ -1,0 +1,7 @@
+# depslib dependency file v1.0
+1558641319 source:/home/ubuntu-thalita/Documentos/Git-CG/DI_CG/src/lighting.cpp
+	<GL/glut.h>
+	<stdio.h>
+	<stdlib.h>
+	<ctype.h>
+
