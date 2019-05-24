@@ -7,7 +7,6 @@
 #include <list>
 #include <string.h>
 #include "extras.h"
-#include <../shared/glcFPSViewer.h>
 #include <vector>
 #include <fstream>
 
@@ -22,7 +21,6 @@ class vertice
 public:
     float x,y,z;
     float espessura;
-    int indexMaterial;
 };
 
 class triangle
@@ -67,11 +65,43 @@ bool	releaseMouse = false;
 float g_translation_speed = 0.05;
 float g_rotation_speed = M_PI/180*0.2;
 
-/** determina qual view port esta visivil**/
+/** determina qual view port esta visivel**/
 bool viewPort = true;
+
+float materiais[5][3][4] =
+{
+    {
+        {.65, .34, .21, 1.0},
+        {.0, .14, .42, 1.0},
+        {.3, .59, .71, 1.0}
+    },
+    {
+        {.86, .19, .41, 1.0},
+        {.49, .0, .0, 1.0},
+        {.44, .44, .5, 1.0}
+    },
+    {
+        {.13, .84, .94, 1.0},
+        {.27, .65, .17, 1.0},
+        {.43, .35, .22, 1.0}
+    },
+    {
+        {.78, .46, .38, 1.0},
+        {1.0, .0, .03, 1.0},
+        {.29, .76, .49, 1.0}
+    },
+    {
+        {1.0, .31, 1.0, 1.0},
+        {1.0, .0, 1.0, 1.0},
+        {.32, 1.0, .25, 1.0}
+    }
+};
 
 vector<list<vertice>> grupos;
 list<vertice> grupoAtual;
+
+///Associa um tipo de material a cada grupo, Padrao 0(material 1)
+vector<int> materialAssociado (10,0);
 
 void readPlyFiles(char *arquivo);
 void KeyboardUp(unsigned char key, int x, int y);
@@ -122,6 +152,22 @@ void setMaterial(void)
     glMaterialfv(GL_FRONT, GL_SHININESS, objeto_brilho);
 }
 
+void SetMaterial(float arrayAmbiente[], float arrayDifusa[], float arrayEspecular[])
+{
+
+    // Material do objeto (neste caso, ruby). Parametros em RGBA
+    GLfloat objeto_ambient[]   = {arrayAmbiente[0], arrayAmbiente[1],arrayAmbiente[2],arrayAmbiente[3]};
+    GLfloat objeto_difusa[]    = {arrayDifusa[0], arrayDifusa[1], arrayDifusa[2], arrayDifusa[3]};
+    GLfloat objeto_especular[] = {arrayEspecular[0], arrayEspecular[1], arrayEspecular[2], arrayEspecular[3]};
+    GLfloat objeto_brilho[]    = { 90.0f };
+
+    // Define os parametros da superficie a ser iluminada
+    glMaterialfv(GL_FRONT, GL_AMBIENT, objeto_ambient);
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, objeto_difusa);
+    glMaterialfv(GL_FRONT, GL_SPECULAR, objeto_especular);
+    glMaterialfv(GL_FRONT, GL_SHININESS, objeto_brilho);
+}
+
 void setMaterialChao(void)
 {
     // Material do objeto (neste caso, ruby). Parametros em RGBA
@@ -142,15 +188,17 @@ void scene()
     float size = 110.0f;
     glPushMatrix();
     glScalef(size, .1, size);
-    setMaterialChao();
+    glColor3f(1.0,1.0,1.0);
+    glDisable(GL_LIGHTING);
     glutSolidCube(0.5);
+    glEnable(GL_LIGHTING);
     glPopMatrix();
 
     glPushMatrix();
     glTranslatef(0.0,1.0,0.0);
     glRotated(-90.0,1.0,0.0,0.0);
-	modela3D();
-	glPopMatrix();
+    modela3D();
+    glPopMatrix();
 }
 
 /// Functions
@@ -159,7 +207,8 @@ void init(void)
     initLight(width, height); // Função extra para tratar iluminação.
 }
 
-void initLuzScene(){
+void initLuzScene()
+{
     glClearColor (0.0, 0.0, 0.0, 0.0);
     glEnable(GL_LIGHT1);                   // habilita luz 0
 
@@ -231,8 +280,8 @@ void drawTriangle(vertice v1, vertice v2, vertice v3, vertice v4)
         {v4.x,  v4.y, v4.z}
     };
 
-    triangle t[2] = {{v[0], v[1], v[2]},
-        {v[2], v[3], v[0]}
+    triangle t[2] = {{v[0], v[2], v[1]},
+        {v[2], v[0], v[3]}
     };
 
     glBegin(GL_TRIANGLES);
@@ -355,6 +404,9 @@ void modela3D()
 {
     for(int i = 0; i < grupos.size(); i++)
     {
+        SetMaterial(materiais[materialAssociado[i]][0], materiais[materialAssociado[i]][1],
+        materiais[materialAssociado[i]][2]);
+
         for(list<vertice>::iterator it = grupos[i].begin(); it != grupos[i].end(); it++)
         {
             vertice v1;
@@ -381,7 +433,10 @@ void modela3D()
             it--;
         }
         entraIf = false;
+
     }
+    setMaterial();
+
 }
 
 void carregaModelo()
@@ -400,7 +455,6 @@ void carregaModelo()
     //Descarta grupos anteriores
     grupos.erase(grupos.begin(), grupos.end());
     grupos.resize(10);
-
     indexGrupoAtual = 0;
 
     if (myfile.is_open())
@@ -474,12 +528,14 @@ void calculaCoordenadasPonto(float x, float y)
 
 void desenhaPonto(float x, float y)
 {
+    glDisable(GL_LIGHTING);
     glPointSize(10.0);
     glEnable(GL_POINT_SMOOTH);
     glBegin(GL_POINTS);
     glColor3f(0.0, 0.0, 1.0);
     glVertex3f(x, y, 0.0);
     glEnd();
+    glEnable(GL_LIGHTING);
 }
 
 void display(void)
@@ -549,7 +605,8 @@ void display(void)
 
         glutSwapBuffers();
     }
-    else{
+    else
+    {
         ///Desenha segunda ViewPort, Navegação (3D)
         glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glClearColor(0.0, 0.0, 0.0, 0.0 );
@@ -588,7 +645,7 @@ void reshape (int w, int h)
     height = h;
 
     g_viewport_width = w;
-	g_viewport_height = h;
+    g_viewport_height = h;
 }
 
 void keyboard (unsigned char key, int x, int y)
@@ -609,8 +666,9 @@ void keyboard (unsigned char key, int x, int y)
         }
         break;
 
-    case 'z':
-        salvaModelo();
+    case 's':
+        if(viewPort)
+            salvaModelo();
         break;
     case 'l':
         carregaModelo();
@@ -623,6 +681,21 @@ void keyboard (unsigned char key, int x, int y)
         boostSpeed = !boostSpeed;
         (boostSpeed) ? g_translation_speed = 0.5 : g_translation_speed = 0.5;
         boostSpeed ? printf("BoostMode ON\n") : printf("BoostMode OFF\n");
+        break;
+    case '1':
+        materialAssociado[indexGrupoAtual] =  0;
+        break;
+    case '2':
+        materialAssociado[indexGrupoAtual] =  1;
+        break;
+    case '3':
+        materialAssociado[indexGrupoAtual] =  2;
+        break;
+    case '4':
+        materialAssociado[indexGrupoAtual] =  3;
+        break;
+    case '5':
+        materialAssociado[indexGrupoAtual] =  4;
         break;
     }
     g_key[key] = true;
