@@ -71,29 +71,29 @@ bool viewPort = true;
 float materiais[5][3][4] =
 {
     {
-        {.65, .34, .21, 1.0},
-        {.0, .14, .42, 1.0},
-        {.3, .59, .71, 1.0}
+        {.17, .01, .01, 1.0},
+        {.91, .04, .04, 1.0},
+        {.72, .62, .62, 1.0}
     },
     {
-        {.86, .19, .41, 1.0},
-        {.49, .0, .0, 1.0},
-        {.44, .44, .5, 1.0}
+        {.33, .22, .07, 1.0},
+        {.78, .57, .11, 1.0},
+        {.99, .94, .81, 1.0}
     },
     {
-        {.13, .84, .94, 1.0},
-        {.27, .65, .17, 1.0},
-        {.43, .35, .22, 1.0}
+        {.10, .19, .17, .80},
+        {.40, .74, .69, .80},
+        {.30, .31, .31, .80}
     },
     {
-        {.78, .46, .38, 1.0},
-        {1.0, .0, .03, 1.0},
-        {.29, .76, .49, 1.0}
+        {.25, .25, .25, 1.0},
+        {.40, .40, .40, 1.0},
+        {.77, .77, .77, 1.0}
     },
     {
-        {1.0, .31, 1.0, 1.0},
-        {1.0, .0, 1.0, 1.0},
-        {.32, 1.0, .25, 1.0}
+        {.25, .22, .06, 1.0},
+        {.35, .31, .09, 1.0},
+        {.80, .72, .21, 1.0}
     }
 };
 
@@ -405,7 +405,7 @@ void modela3D()
     for(int i = 0; i < grupos.size(); i++)
     {
         SetMaterial(materiais[materialAssociado[i]][0], materiais[materialAssociado[i]][1],
-        materiais[materialAssociado[i]][2]);
+                    materiais[materialAssociado[i]][2]);
 
         for(list<vertice>::iterator it = grupos[i].begin(); it != grupos[i].end(); it++)
         {
@@ -441,52 +441,76 @@ void modela3D()
 
 void carregaModelo()
 {
-    //Espaço como separador de string
-    string line;
-    string delimiter = " ";
-
     char nomeArquivo [100];
     printf("Digite nome do modelo a ser carregado: \n");
     cin >> nomeArquivo;
     strcat(nomeArquivo,".txt");
 
-    ifstream myfile (nomeArquivo);
+    //abrindo o arquivo
+    FILE *file = fopen(nomeArquivo, "r");
+    char buff[255];
+
+    if(!file)
+    {
+        printf("ERRO NA LEITURA DO ARQUIVO");
+        return;
+    }
 
     //Descarta grupos anteriores
     grupos.erase(grupos.begin(), grupos.end());
     grupos.resize(10);
-    indexGrupoAtual = 0;
+    indexGrupoAtual = -1;
 
-    if (myfile.is_open())
+    bool leituraGrupos = true;
+    //loop por cada linha do arquivo
+    while(fgets(buff, sizeof(buff), file))
     {
-        size_t pos = 0;
-        std::string token;
+        //dividi a linha em cada palavra (token)
+        char *palavra = strtok(buff, " ");
 
-        while ( getline (myfile,line) )
+        if(strcmp(palavra, "GRUPOS") == 0)
         {
-            int j = 0;
-            float auxArray[4];
+            leituraGrupos = true;
+            palavra = strtok(NULL, " ");
+        }
 
-            //Separa campos para serem armazenados
-            while ((pos = line.find(delimiter)) != std::string::npos)
-            {
-                token = line.substr(0, pos);
-                line.erase(0, pos + delimiter.length());
-                auxArray[j] = stof(token);
-                j++;
+        if(strcmp(palavra, "PLY") == 0)
+        {
+            leituraGrupos = false;
+            palavra = strtok(NULL, " ");
+        }
 
-            }
+        if(strcmp(palavra, "material") == 0 && leituraGrupos == true)
+        {
+            indexGrupoAtual++;
+            palavra = strtok(NULL, " ");
+            materialAssociado[indexGrupoAtual] =  atoi(palavra);
+            palavra = strtok(NULL, " ");
+        }
+
+        if(leituraGrupos == true &&
+                strcmp(palavra, "material") != 0 &&
+                strcmp(palavra, "GRUPOS") != 0 &&
+                strcmp(palavra, "\n") != 0)
+        {
+
             vertice *novo = new vertice();
-            novo->x = auxArray[0];
-            novo->y = auxArray[1];
-            novo->z = auxArray[2];
-            novo->espessura = auxArray[3];
+            novo->x = atof(palavra);
+            palavra = strtok(NULL, " ");
+
+            novo->y =  atof(palavra);
+            palavra = strtok(NULL, " ");
+
+            novo->z =  atof(palavra);
+            palavra = strtok(NULL, " ");
+
+            novo->espessura =  atoi(palavra);
             grupos[indexGrupoAtual].push_back(*novo);
         }
-        myfile.close();
-        //indexGrupoAtual++;
     }
-    else cout << "Unable to open file";
+
+    fclose(file);
+    cout << "FIM" << endl;
 }
 
 void salvaModelo()
@@ -496,16 +520,21 @@ void salvaModelo()
 
     char nomeArquivo[100];
 
-    printf("Digite o nome do arquivo para salvar o grupo atual: \n");
+    printf("Digite o nome do arquivo para salvar o modelo: \n");
     cin >> nomeArquivo;
 
     strcat(nomeArquivo,".txt");
     arq = fopen(nomeArquivo, "wt");  /// Cria um arquivo texto para gravação
 
-    for(list<vertice>::iterator it = grupos[indexGrupoAtual].begin(); it != grupos[indexGrupoAtual].end(); it++)
+    result = fprintf(arq,"GRUPOS \n");
+    for (int j = 0; j < grupos.size(); j++ )
     {
-        /// formato: x y z espessura
-        result = fprintf(arq,"%f %f %f %f \n",it->x, it->y, it->z, it->espessura);
+        result = fprintf(arq,"material %d \n",materialAssociado[j]);
+        for(list<vertice>::iterator it = grupos[j].begin(); it != grupos[j].end(); it++)
+        {
+            /// formato: x y z espessura
+            result = fprintf(arq,"%f %f %f %f\n",it->x, it->y, it->z, it->espessura);
+        }
     }
     fclose(arq);
 

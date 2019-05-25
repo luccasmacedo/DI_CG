@@ -92,3 +92,27 @@
 
 1558662575 /home/luccas/Documentos/Faculdade/CG/CG/D1_20191_Base/camera.h
 
+1558808877 source:/home/ubuntu-thalita/Documentos/CG-T2/DI_CG/D1_20191_Base/camera.cpp
+	<stdio.h>
+	<math.h>
+	<GL/glut.h>
+	"camera.h"
+
+1558808877 /home/ubuntu-thalita/Documentos/CG-T2/DI_CG/D1_20191_Base/camera.h
+
+1558817619 source:/home/ubuntu-thalita/Documentos/CG-T2/DI_CG/D1_20191_Base/main.cpp
+	<GL/glut.h>
+	<stdlib.h>
+	<iostream>
+	<stdio.h>
+	<ctype.h>
+	<math.h>
+	<list>
+	<string.h>
+	"extras.h"
+	<vector>
+	<fstream>
+	"camera.h"
+
+1558808877 /home/ubuntu-thalita/Documentos/CG-T2/DI_CG/D1_20191_Base/extras.h
+
