@@ -1,0 +1,41 @@
+# depslib dependency file v1.0
+1558830038 source:c:\users\msodr\t2\di_cg\d1_20191_base\camera.cpp
+	<stdio.h>
+	<math.h>
+	<GL/glut.h>
+	"camera.h"
+
+1558830039 c:\users\msodr\t2\di_cg\shared\windows\include\gl\glut.h
+	"freeglut_std.h"
+
+1558830039 c:\users\msodr\t2\di_cg\shared\windows\include\gl\freeglut_std.h
+	<windows.h>
+	<OpenGL/gl.h>
+	<OpenGL/glu.h>
+	<GL/gl.h>
+	<GL/glu.h>
+	<stdlib.h>
+
+1558830038 c:\users\msodr\t2\di_cg\d1_20191_base\camera.h
+
+1558830039 source:c:\users\msodr\t2\di_cg\src\quad.cpp
+	<stdio.h>
+	<GL/glut.h>
+	<math.h>
+
+1558830581 source:c:\users\msodr\t2\di_cg\d1_20191_base\main.cpp
+	<GL/glut.h>
+	<stdlib.h>
+	<iostream>
+	<stdio.h>
+	<ctype.h>
+	<math.h>
+	<list>
+	<string.h>
+	"extras.h"
+	<vector>
+	<fstream>
+	"camera.h"
+
+1558830038 c:\users\msodr\t2\di_cg\d1_20191_base\extras.h
+

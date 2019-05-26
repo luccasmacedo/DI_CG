@@ -15,7 +15,6 @@
 using namespace std;
 
 /// Estruturas iniciais para armazenar vertices
-//  Você poderá utilizá-las adicionando novos métodos (de acesso por exemplo) ou usar suas próprias estruturas.
 class vertice
 {
 public:
@@ -29,12 +28,28 @@ public:
     vertice v[3];
 };
 
-class figura
+class polygon
 {
 public:
-    vector<list<vertice>> objetoGrupos;
+    vector<int> vertices;
 };
 
+class figure
+{
+public:
+    vector<vertice> vertex;
+    vector<polygon> faces;
+    vertice medio;
+    float scale_factor[3];
+};
+
+class Ply{
+public:
+    int objetoEscolhido;
+    vertice posicao;
+    float orientacao;
+    int material;
+};
 /// Globals
 float zdist = 30.0;
 
@@ -49,6 +64,9 @@ bool fullSreen = false;
 vertice oldVector[4];
 bool entraIf = false;
 int indexGrupoAtual = 0;
+int contPlyObjects = 0;
+int materialSelected = 0;
+int plySelected;
 
 Camera  g_camera;
 bool 	g_key[256];
@@ -96,12 +114,21 @@ float materiais[5][3][4] =
         {.80, .72, .21, 1.0}
     }
 };
+///Arquivos ply
+string fileName[5] ={"egret.ply",
+                     "big_act.ply",
+                     "weathervane.ply",
+                     "balance.ply",
+                     "fracttree.ply"
+                    };
 
-vector<list<vertice>> grupos;
+vector<list<vertice> > grupos;
 list<vertice> grupoAtual;
-
+vector<Ply> objetosPly(10);
 ///Associa um tipo de material a cada grupo, Padrao 0(material 1)
-vector<int> materialAssociado (10,0);
+vector<int> materialAssociado(10,0);
+///Armazena os arquivos que podem ser inseridos no ambiente
+vector<figure> arquivos(5);
 
 void readPlyFiles(char *arquivo);
 void KeyboardUp(unsigned char key, int x, int y);
@@ -189,9 +216,8 @@ void scene()
     glPushMatrix();
     glScalef(size, .1, size);
     glColor3f(1.0,1.0,1.0);
-    glDisable(GL_LIGHTING);
+    setMaterialChao();
     glutSolidCube(0.5);
-    glEnable(GL_LIGHTING);
     glPopMatrix();
 
     glPushMatrix();
@@ -292,6 +318,20 @@ void drawTriangle(vertice v1, vertice v2, vertice v3, vertice v4)
         for(int j = 0; j < 3; j++) // vertices do triangulo
             glVertex3d(t[i].v[j].x, t[i].v[j].y, t[i].v[j].z);
     }
+    glEnd();
+}
+
+void drawTriangle(vertice v1, vertice v2, vertice v3)
+{
+    //glTranslatef(-arquivos[indexGrupoAtual].medio.x, -arquivos[indexGrupoAtual].medio.y, -arquivos[indexGrupoAtual].medio.z);
+    vertice vetorNormal;
+    triangle t = {v1,v2,v3};
+
+    glBegin(GL_TRIANGLES);
+    CalculaNormal(t, &vetorNormal); // Passa face triangular e endereço do vetor normal de saída
+    glNormal3f(vetorNormal.x, vetorNormal.y,vetorNormal.z);
+    for(int j = 0; j < 3; j++) // vertices do triangulo
+        glVertex3d(t.v[j].x, t.v[j].y, t.v[j].z);
     glEnd();
 }
 
@@ -439,6 +479,267 @@ void modela3D()
 
 }
 
+void readPlyFiles(string arquivo)
+{
+    // numero total de vertices do objeto
+    int num_vertices;
+
+    // numero total de faces do objeto
+    int num_faces;
+
+    char * cstr = new char [arquivo.length()+1];
+    strcpy (cstr, arquivo.c_str());
+    //abrindo o arquivo
+    FILE *file = fopen(cstr, "r");
+    char buff[255];
+
+    if(!file)
+    {
+        printf("ERRO NA LEITURA DO ARQUIVO");
+        return;
+    }
+
+    //o numero total de vertices e faces
+    int cont_vertices = 0;
+    int cont_faces = 0;
+
+    //Indica em qual palavra estou na linha
+    int indice_linha = 0;
+
+    //numero de vertices por linha
+    int num_propriedades = 0;
+
+    //loop por cada linha do arquivo
+    while(fgets(buff, sizeof(buff), file))
+    {
+
+        //dividi a linha em cada palavra (token)
+        char *palavra = strtok(buff, " ");
+
+        //se é a palavra 'element',paga o numero de vertices e faces
+        if(strcmp (palavra, "element") == 0)
+        {
+
+            while(palavra != NULL)
+            {
+
+                if(strcmp (palavra, "vertex") == 0)
+                {
+                    palavra = strtok(NULL, " ");
+                    num_vertices = atoi(palavra);
+                }
+
+                if(strcmp (palavra, "face") == 0)
+                {
+                    palavra = strtok(NULL, " ");
+                    num_faces = atoi(palavra);
+                }
+
+                palavra = strtok(NULL, " ");
+            }
+        }
+
+        //numero de propriedades que vai estar no vetor de vertices
+        if(palavra != NULL && strcmp (palavra, "property") == 0)
+        {
+            char* proxima_palavra = strtok(NULL, " ");
+            if(strcmp (proxima_palavra, "list") != 0)
+            {
+                num_propriedades++;
+            }
+
+        }
+        //termino do header
+        vertice v_min, v_max;
+        if(buff[0] == 'e' && buff[1] == 'n' && buff[2] == 'd')
+        {
+            arquivos[indexGrupoAtual].vertex.resize(num_vertices);
+            arquivos[indexGrupoAtual].faces.resize(num_faces);
+            int cont = 0;
+            //Leitura dos vertices
+            while(fgets(buff, sizeof(buff), file))
+            {
+                char* vertice = strtok(buff, " ");
+                arquivos[indexGrupoAtual].vertex[cont].x = atof(vertice);
+
+                // proxima palavra da linha
+                vertice = strtok(NULL, " ");
+                arquivos[indexGrupoAtual].vertex[cont].y = atof(vertice);
+
+                // proxima palavra da linha
+                vertice = strtok(NULL, " ");
+                arquivos[indexGrupoAtual].vertex[cont].z = atof(vertice);
+
+                if(cont == 0)
+                {
+                    v_min.x = arquivos[indexGrupoAtual].vertex[cont].x;
+                    v_min.y = arquivos[indexGrupoAtual].vertex[cont].y;
+                    v_min.z = arquivos[indexGrupoAtual].vertex[cont].z;
+
+                    v_max.x = arquivos[indexGrupoAtual].vertex[cont].x;
+                    v_max.y = arquivos[indexGrupoAtual].vertex[cont].y;
+                    v_max.z = arquivos[indexGrupoAtual].vertex[cont].z;
+                }
+                else
+                {
+                    if(v_min.x > arquivos[indexGrupoAtual].vertex[cont].x)
+                        v_min.x = arquivos[indexGrupoAtual].vertex[cont].x;
+                    if(v_min.y > arquivos[indexGrupoAtual].vertex[cont].y)
+                        v_min.y = arquivos[indexGrupoAtual].vertex[cont].y;
+                    if(v_min.z > arquivos[indexGrupoAtual].vertex[cont].z)
+                        v_min.z = arquivos[indexGrupoAtual].vertex[cont].z;
+
+                    if(v_max.x < arquivos[indexGrupoAtual].vertex[cont].x)
+                        v_max.x = arquivos[indexGrupoAtual].vertex[cont].x;
+                    if(v_max.y < arquivos[indexGrupoAtual].vertex[cont].y)
+                        v_max.y = arquivos[indexGrupoAtual].vertex[cont].y;
+                    if(v_max.z < arquivos[indexGrupoAtual].vertex[cont].z)
+                        v_max.z = arquivos[indexGrupoAtual].vertex[cont].z;
+                }
+
+                cont++;
+
+                if(cont == num_vertices)
+                    break;
+            }
+
+            arquivos[indexGrupoAtual].medio.x = (v_min.x + v_max.x)/2.0;
+            arquivos[indexGrupoAtual].medio.y = (v_min.y + v_max.y)/2.0;
+            arquivos[indexGrupoAtual].medio.z = (v_min.z + v_max.z)/2.0;
+
+            int k = 0;
+            ///Leitura dos poligonos
+            while(fgets(buff, sizeof(buff), file))
+            {
+                int tam  = atoi(strtok(buff, " "));
+                arquivos[indexGrupoAtual].faces[k].vertices.resize(tam);
+
+                char* verticeFace = strtok(NULL, " ");
+                for (int j = 0; j < tam; j++)
+                {
+                    arquivos[indexGrupoAtual].faces[k].vertices[j] = stoi(verticeFace);
+                    verticeFace = strtok(NULL, " ");
+                }
+                k++;
+            }
+            fclose(file);
+        }
+    }
+}
+
+void readPlyFiles()
+{
+    arquivos.resize(VECTOR_SIZE);
+    for(int i = 0; i < VECTOR_SIZE; i++)
+    {
+        readPlyFiles(fileName[i]);
+
+        for(int i = 0; i < 3; i++)
+        {
+            for(int j = 0; j < 4; j++)
+            {
+                arquivos[indexGrupoAtual].matriz[i][j] = matrizIluminacao[indexGrupoAtual][i][j];
+            }
+        }
+        indexGrupoAtual++;
+    }
+    indexGrupoAtual = 0;
+
+    arquivos[0].scale_factor[0] = 6;
+    arquivos[0].scale_factor[1] = 6;
+    arquivos[0].scale_factor[2] = 6;
+    arquivos[0].zdist_begin = 2;
+    arquivos[0].zdist_min = 1.5;
+    arquivos[0].zdist_max = 10.0;
+
+    arquivos[1].scale_factor[0] = 6;
+    arquivos[1].scale_factor[1] = 6;
+    arquivos[1].scale_factor[2] = 6;
+    arquivos[1].zdist_begin = 3;
+    arquivos[1].zdist_min = 1.5;
+    arquivos[1].zdist_max = 10.0;
+
+    arquivos[2].scale_factor[0] = 1;
+    arquivos[2].scale_factor[1] = 1;
+    arquivos[2].scale_factor[2] = 1;
+    arquivos[2].zdist_begin = 7.0;
+    arquivos[2].zdist_min = 3.5;
+    arquivos[2].zdist_max = 20.0;
+
+    arquivos[3].scale_factor[0] = 6;
+    arquivos[3].scale_factor[1] = 6;
+    arquivos[3].scale_factor[2] = 6;
+    arquivos[3].zdist_begin = 4.0;
+    arquivos[3].zdist_min = 2.0;
+    arquivos[3].zdist_max = 10.0;
+
+    arquivos[4].scale_factor[0] = 6;
+    arquivos[4].scale_factor[1] = 6;
+    arquivos[4].scale_factor[2] = 6;
+    arquivos[4].zdist_begin = 4.0;
+    arquivos[4].zdist_min = 2.0;
+    arquivos[4].zdist_max = 10.0;
+
+    arquivos[5].scale_factor[0] = 1;
+    arquivos[5].scale_factor[1] = 1;
+    arquivos[5].scale_factor[2] = 1;
+    arquivos[5].zdist_begin = 10.0;
+    arquivos[5].zdist_min = 5.0;
+    arquivos[5].zdist_max = 30.0;
+}
+
+void modelaObjeto()
+{
+    //SetMaterial(arquivos[indexGrupoAtual].matriz[0], arquivos[indexGrupoAtual].matriz[1], arquivos[indexGrupoAtual].matriz[2] );
+    for(int i = 0; i < arquivos[indexGrupoAtual].faces.size(); i++)
+    {
+        if(arquivos[indexGrupoAtual].faces[i].vertices.size() == 3)
+        {
+            int index[3];
+            index[0] = arquivos[indexGrupoAtual].faces[i].vertices[0];
+            index[1] = arquivos[indexGrupoAtual].faces[i].vertices[1];
+            index[2] = arquivos[indexGrupoAtual].faces[i].vertices[2];
+
+            if(superficie)
+            {
+                drawTriangle(arquivos[indexGrupoAtual].vertex[index[0]],
+                             arquivos[indexGrupoAtual].vertex[index[1]],
+                             arquivos[indexGrupoAtual].vertex[index[2]]);
+            }
+            else
+            {
+                drawTriangleWireframe(arquivos[indexGrupoAtual].vertex[index[0]],
+                                      arquivos[indexGrupoAtual].vertex[index[1]],
+                                      arquivos[indexGrupoAtual].vertex[index[2]]);
+            }
+        }
+        else
+        {
+            int index[4];
+            index[0] = arquivos[indexGrupoAtual].faces[i].vertices[0];
+            index[1] = arquivos[indexGrupoAtual].faces[i].vertices[1];
+            index[2] = arquivos[indexGrupoAtual].faces[i].vertices[2];
+            index[3] = arquivos[indexGrupoAtual].faces[i].vertices[3];
+
+            if(superficie)
+            {
+                drawTriangle(arquivos[indexGrupoAtual].vertex[index[0]],
+                             arquivos[indexGrupoAtual].vertex[index[1]],
+                             arquivos[indexGrupoAtual].vertex[index[2]]);
+
+                drawTriangle(arquivos[indexGrupoAtual].vertex[index[2]],
+                             arquivos[indexGrupoAtual].vertex[index[3]],
+                             arquivos[indexGrupoAtual].vertex[index[0]]);
+            }
+            else
+            {
+                drawTriangleWireframe(arquivos[indexGrupoAtual].vertex[index[2]],
+                                      arquivos[indexGrupoAtual].vertex[index[3]],
+                                      arquivos[indexGrupoAtual].vertex[index[0]]);
+            }
+        }
+    }
+}
 void carregaModelo()
 {
     char nomeArquivo [100];
@@ -706,6 +1007,9 @@ void keyboard (unsigned char key, int x, int y)
         viewPort = !viewPort;
         g_camera.SetPos(-10.0,3.0,0.0);
         break;
+    case 'p':
+        ///Definir função
+        break;
     case 'b':
         boostSpeed = !boostSpeed;
         (boostSpeed) ? g_translation_speed = 0.5 : g_translation_speed = 0.5;
@@ -713,18 +1017,38 @@ void keyboard (unsigned char key, int x, int y)
         break;
     case '1':
         materialAssociado[indexGrupoAtual] =  0;
+        materialSelected = 0;
         break;
     case '2':
         materialAssociado[indexGrupoAtual] =  1;
+        materialSelected = 1;
         break;
     case '3':
         materialAssociado[indexGrupoAtual] =  2;
+        materialSelected = 2;
         break;
     case '4':
         materialAssociado[indexGrupoAtual] =  3;
+        materialSelected = 3;
         break;
     case '5':
         materialAssociado[indexGrupoAtual] =  4;
+        materialSelected = 4;
+        break;
+    case '6':
+        plySelected = 0;
+        break;
+    case '7':
+        plySelected = 1;
+        break;
+    case '8':
+        plySelected = 2;
+        break;
+    case '9':
+        plySelected = 3;
+        break;
+    case '0':
+        plySelected = 4;
         break;
     }
     g_key[key] = true;
@@ -854,16 +1178,19 @@ void specialKeysPress(int key, int x, int y)
 void exibeMenu()
 {
     printf("--------------Menu-----------------\n");
-    printf("Opcoes de interação:\n");
     printf("LEFT(DIRECIONAL) Retorna ao grupo anterior. \n");
     printf("RIGHT(DIRECIONAL) Avança para o proximo grupo. \n");
     printf("UP(DIRECIONAL) Aumenta altura do ponto a ser criado. \n");
     printf("DOWN(DIRECIONAL) Diminui altura do ponto a ser criado. \n");
     printf("F12 Modo Fullscreen. \n");
-    printf("s Salvar o modelo. \n");
+    printf("s Salvar o modelo(modo edição) \n");
     printf("l Carregar modelo.\n");
     printf(". Aumenta espessura do modelo gerado.\n");
     printf(", Diminui espessura do modelo gerado.\n");
+    printf("1,2,3,4 e 5 Escolhe material a ser aplicado nos próximos objetos.\n");
+    printf("6,7,8,9 e 0 Escolhe objeto ply a ser inserido\n");
+    ///FALAR SOBRE OS OBJETOS
+    printf("p Inserção de um objeto ply e sua orientação\n");
     printf("ESC para sair.\n");
     printf("-------------------------------------\n\n");
 }
