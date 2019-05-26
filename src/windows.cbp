@@ -25,7 +25,7 @@
 			<Add directory="../shared" />
 			<Add directory="../shared/windows/include" />
 			<Add directory="../shared/windows/include/png" />
-			<Add directory="../shared/windows/include/zlib" />			
+			<Add directory="../shared/windows/include/zlib" />
 		</Compiler>
 		<Linker>
 			<Add library="libpng.a" />
@@ -38,7 +38,10 @@
 			<Add library="libglew32.dll.a" />
 			<Add directory="../shared/windows/lib" />
 		</Linker>
-		<Unit filename="quad.cpp" />
+		<Unit filename="../D1_20191_Base/camera.cpp" />
+		<Unit filename="../D1_20191_Base/camera.h" />
+		<Unit filename="../D1_20191_Base/extras.h" />
+		<Unit filename="../D1_20191_Base/main.cpp" />
 		<Extensions>
 			<code_completion />
 			<debugger />

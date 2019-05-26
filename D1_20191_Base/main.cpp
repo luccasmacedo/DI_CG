@@ -9,7 +9,7 @@
 #include "extras.h"
 #include <vector>
 #include <fstream>
-
+#define VECTOR_SIZE 5
 #include "camera.h"
 
 using namespace std;
@@ -43,7 +43,8 @@ public:
     float scale_factor[3];
 };
 
-class Ply{
+class Ply
+{
 public:
     int objetoEscolhido;
     vertice posicao;
@@ -66,7 +67,7 @@ bool entraIf = false;
 int indexGrupoAtual = 0;
 int contPlyObjects = 0;
 int materialSelected = 0;
-int plySelected;
+int plySelected = 0;
 
 Camera  g_camera;
 bool 	g_key[256];
@@ -78,6 +79,7 @@ bool 	inverseMouse = false;
 bool	boostSpeed = false; // Change keyboard speed
 bool    flyMode = false;
 bool	releaseMouse = false;
+bool    waitingPosition = false;
 
 // Movement settings
 float g_translation_speed = 0.05;
@@ -115,12 +117,12 @@ float materiais[5][3][4] =
     }
 };
 ///Arquivos ply
-string fileName[5] ={"egret.ply",
-                     "big_act.ply",
-                     "weathervane.ply",
-                     "balance.ply",
-                     "fracttree.ply"
-                    };
+string fileName[5] = {"cow.ply",
+                      "big_act.ply",
+                      "weathervane.ply",
+                      "balance.ply",
+                      "fracttree.ply"
+                     };
 
 vector<list<vertice> > grupos;
 list<vertice> grupoAtual;
@@ -130,10 +132,10 @@ vector<int> materialAssociado(10,0);
 ///Armazena os arquivos que podem ser inseridos no ambiente
 vector<figure> arquivos(5);
 
-void readPlyFiles(char *arquivo);
 void KeyboardUp(unsigned char key, int x, int y);
 void MouseMotion(int x, int y);
 void modela3D();
+void modelaObjeto();
 void initLuzScene();
 
 void KeyboardUp(unsigned char key, int x, int y)
@@ -224,6 +226,7 @@ void scene()
     glTranslatef(0.0,1.0,0.0);
     glRotated(-90.0,1.0,0.0,0.0);
     modela3D();
+    modelaObjeto();
     glPopMatrix();
 }
 
@@ -479,7 +482,7 @@ void modela3D()
 
 }
 
-void readPlyFiles(string arquivo)
+void readPlyFiles(string arquivo, int contador)
 {
     // numero total de vertices do objeto
     int num_vertices;
@@ -553,48 +556,48 @@ void readPlyFiles(string arquivo)
         vertice v_min, v_max;
         if(buff[0] == 'e' && buff[1] == 'n' && buff[2] == 'd')
         {
-            arquivos[indexGrupoAtual].vertex.resize(num_vertices);
-            arquivos[indexGrupoAtual].faces.resize(num_faces);
+            arquivos[contador].vertex.resize(num_vertices);
+            arquivos[contador].faces.resize(num_faces);
             int cont = 0;
             //Leitura dos vertices
             while(fgets(buff, sizeof(buff), file))
             {
                 char* vertice = strtok(buff, " ");
-                arquivos[indexGrupoAtual].vertex[cont].x = atof(vertice);
+                arquivos[contador].vertex[cont].x = atof(vertice);
 
                 // proxima palavra da linha
                 vertice = strtok(NULL, " ");
-                arquivos[indexGrupoAtual].vertex[cont].y = atof(vertice);
+                arquivos[contador].vertex[cont].y = atof(vertice);
 
                 // proxima palavra da linha
                 vertice = strtok(NULL, " ");
-                arquivos[indexGrupoAtual].vertex[cont].z = atof(vertice);
+                arquivos[contador].vertex[cont].z = atof(vertice);
 
                 if(cont == 0)
                 {
-                    v_min.x = arquivos[indexGrupoAtual].vertex[cont].x;
-                    v_min.y = arquivos[indexGrupoAtual].vertex[cont].y;
-                    v_min.z = arquivos[indexGrupoAtual].vertex[cont].z;
+                    v_min.x = arquivos[contador].vertex[cont].x;
+                    v_min.y = arquivos[contador].vertex[cont].y;
+                    v_min.z = arquivos[contador].vertex[cont].z;
 
-                    v_max.x = arquivos[indexGrupoAtual].vertex[cont].x;
-                    v_max.y = arquivos[indexGrupoAtual].vertex[cont].y;
-                    v_max.z = arquivos[indexGrupoAtual].vertex[cont].z;
+                    v_max.x = arquivos[contador].vertex[cont].x;
+                    v_max.y = arquivos[contador].vertex[cont].y;
+                    v_max.z = arquivos[contador].vertex[cont].z;
                 }
                 else
                 {
-                    if(v_min.x > arquivos[indexGrupoAtual].vertex[cont].x)
-                        v_min.x = arquivos[indexGrupoAtual].vertex[cont].x;
-                    if(v_min.y > arquivos[indexGrupoAtual].vertex[cont].y)
-                        v_min.y = arquivos[indexGrupoAtual].vertex[cont].y;
-                    if(v_min.z > arquivos[indexGrupoAtual].vertex[cont].z)
-                        v_min.z = arquivos[indexGrupoAtual].vertex[cont].z;
+                    if(v_min.x > arquivos[contador].vertex[cont].x)
+                        v_min.x = arquivos[contador].vertex[cont].x;
+                    if(v_min.y > arquivos[contador].vertex[cont].y)
+                        v_min.y = arquivos[contador].vertex[cont].y;
+                    if(v_min.z > arquivos[contador].vertex[cont].z)
+                        v_min.z = arquivos[contador].vertex[cont].z;
 
-                    if(v_max.x < arquivos[indexGrupoAtual].vertex[cont].x)
-                        v_max.x = arquivos[indexGrupoAtual].vertex[cont].x;
-                    if(v_max.y < arquivos[indexGrupoAtual].vertex[cont].y)
-                        v_max.y = arquivos[indexGrupoAtual].vertex[cont].y;
-                    if(v_max.z < arquivos[indexGrupoAtual].vertex[cont].z)
-                        v_max.z = arquivos[indexGrupoAtual].vertex[cont].z;
+                    if(v_max.x < arquivos[contador].vertex[cont].x)
+                        v_max.x = arquivos[contador].vertex[cont].x;
+                    if(v_max.y < arquivos[contador].vertex[cont].y)
+                        v_max.y = arquivos[contador].vertex[cont].y;
+                    if(v_max.z < arquivos[contador].vertex[cont].z)
+                        v_max.z = arquivos[contador].vertex[cont].z;
                 }
 
                 cont++;
@@ -603,21 +606,21 @@ void readPlyFiles(string arquivo)
                     break;
             }
 
-            arquivos[indexGrupoAtual].medio.x = (v_min.x + v_max.x)/2.0;
-            arquivos[indexGrupoAtual].medio.y = (v_min.y + v_max.y)/2.0;
-            arquivos[indexGrupoAtual].medio.z = (v_min.z + v_max.z)/2.0;
+            arquivos[contador].medio.x = (v_min.x + v_max.x)/2.0;
+            arquivos[contador].medio.y = (v_min.y + v_max.y)/2.0;
+            arquivos[contador].medio.z = (v_min.z + v_max.z)/2.0;
 
             int k = 0;
             ///Leitura dos poligonos
             while(fgets(buff, sizeof(buff), file))
             {
                 int tam  = atoi(strtok(buff, " "));
-                arquivos[indexGrupoAtual].faces[k].vertices.resize(tam);
+                arquivos[contador].faces[k].vertices.resize(tam);
 
                 char* verticeFace = strtok(NULL, " ");
                 for (int j = 0; j < tam; j++)
                 {
-                    arquivos[indexGrupoAtual].faces[k].vertices[j] = stoi(verticeFace);
+                    arquivos[contador].faces[k].vertices[j] = atoi(verticeFace);
                     verticeFace = strtok(NULL, " ");
                 }
                 k++;
@@ -632,114 +635,82 @@ void readPlyFiles()
     arquivos.resize(VECTOR_SIZE);
     for(int i = 0; i < VECTOR_SIZE; i++)
     {
-        readPlyFiles(fileName[i]);
-
-        for(int i = 0; i < 3; i++)
-        {
-            for(int j = 0; j < 4; j++)
-            {
-                arquivos[indexGrupoAtual].matriz[i][j] = matrizIluminacao[indexGrupoAtual][i][j];
-            }
-        }
-        indexGrupoAtual++;
+        readPlyFiles(fileName[i],i);
     }
-    indexGrupoAtual = 0;
 
     arquivos[0].scale_factor[0] = 6;
     arquivos[0].scale_factor[1] = 6;
     arquivos[0].scale_factor[2] = 6;
-    arquivos[0].zdist_begin = 2;
-    arquivos[0].zdist_min = 1.5;
-    arquivos[0].zdist_max = 10.0;
+
 
     arquivos[1].scale_factor[0] = 6;
     arquivos[1].scale_factor[1] = 6;
     arquivos[1].scale_factor[2] = 6;
-    arquivos[1].zdist_begin = 3;
-    arquivos[1].zdist_min = 1.5;
-    arquivos[1].zdist_max = 10.0;
+
 
     arquivos[2].scale_factor[0] = 1;
     arquivos[2].scale_factor[1] = 1;
     arquivos[2].scale_factor[2] = 1;
-    arquivos[2].zdist_begin = 7.0;
-    arquivos[2].zdist_min = 3.5;
-    arquivos[2].zdist_max = 20.0;
 
     arquivos[3].scale_factor[0] = 6;
     arquivos[3].scale_factor[1] = 6;
     arquivos[3].scale_factor[2] = 6;
-    arquivos[3].zdist_begin = 4.0;
-    arquivos[3].zdist_min = 2.0;
-    arquivos[3].zdist_max = 10.0;
 
     arquivos[4].scale_factor[0] = 6;
     arquivos[4].scale_factor[1] = 6;
     arquivos[4].scale_factor[2] = 6;
-    arquivos[4].zdist_begin = 4.0;
-    arquivos[4].zdist_min = 2.0;
-    arquivos[4].zdist_max = 10.0;
-
-    arquivos[5].scale_factor[0] = 1;
-    arquivos[5].scale_factor[1] = 1;
-    arquivos[5].scale_factor[2] = 1;
-    arquivos[5].zdist_begin = 10.0;
-    arquivos[5].zdist_min = 5.0;
-    arquivos[5].zdist_max = 30.0;
 }
 
 void modelaObjeto()
 {
-    //SetMaterial(arquivos[indexGrupoAtual].matriz[0], arquivos[indexGrupoAtual].matriz[1], arquivos[indexGrupoAtual].matriz[2] );
-    for(int i = 0; i < arquivos[indexGrupoAtual].faces.size(); i++)
+    for(int j = 0; j < contPlyObjects; j++)
     {
-        if(arquivos[indexGrupoAtual].faces[i].vertices.size() == 3)
+        SetMaterial(materiais[objetosPly[j].material][0],materiais[objetosPly[j].material][1],
+                    materiais[objetosPly[j].material][2]);
+        for(int i = 0; i < arquivos[objetosPly[j].objetoEscolhido].faces.size(); i++)
         {
-            int index[3];
-            index[0] = arquivos[indexGrupoAtual].faces[i].vertices[0];
-            index[1] = arquivos[indexGrupoAtual].faces[i].vertices[1];
-            index[2] = arquivos[indexGrupoAtual].faces[i].vertices[2];
-
-            if(superficie)
+            if(arquivos[objetosPly[j].objetoEscolhido].faces[i].vertices.size() == 3)
             {
-                drawTriangle(arquivos[indexGrupoAtual].vertex[index[0]],
-                             arquivos[indexGrupoAtual].vertex[index[1]],
-                             arquivos[indexGrupoAtual].vertex[index[2]]);
+                int index[3];
+                index[0] = arquivos[objetosPly[j].objetoEscolhido].faces[i].vertices[0];
+                index[1] = arquivos[objetosPly[j].objetoEscolhido].faces[i].vertices[1];
+                index[2] = arquivos[objetosPly[j].objetoEscolhido].faces[i].vertices[2];
+
+
+                drawTriangle(arquivos[objetosPly[j].objetoEscolhido].vertex[index[0]],
+                             arquivos[objetosPly[j].objetoEscolhido].vertex[index[1]],
+                             arquivos[objetosPly[j].objetoEscolhido].vertex[index[2]]);
             }
             else
             {
-                drawTriangleWireframe(arquivos[indexGrupoAtual].vertex[index[0]],
-                                      arquivos[indexGrupoAtual].vertex[index[1]],
-                                      arquivos[indexGrupoAtual].vertex[index[2]]);
-            }
-        }
-        else
-        {
-            int index[4];
-            index[0] = arquivos[indexGrupoAtual].faces[i].vertices[0];
-            index[1] = arquivos[indexGrupoAtual].faces[i].vertices[1];
-            index[2] = arquivos[indexGrupoAtual].faces[i].vertices[2];
-            index[3] = arquivos[indexGrupoAtual].faces[i].vertices[3];
+                int index[4];
+                index[0] = arquivos[objetosPly[j].objetoEscolhido].faces[i].vertices[0];
+                index[1] = arquivos[objetosPly[j].objetoEscolhido].faces[i].vertices[1];
+                index[2] = arquivos[objetosPly[j].objetoEscolhido].faces[i].vertices[2];
+                index[3] = arquivos[objetosPly[j].objetoEscolhido].faces[i].vertices[3];
 
-            if(superficie)
-            {
-                drawTriangle(arquivos[indexGrupoAtual].vertex[index[0]],
-                             arquivos[indexGrupoAtual].vertex[index[1]],
-                             arquivos[indexGrupoAtual].vertex[index[2]]);
 
-                drawTriangle(arquivos[indexGrupoAtual].vertex[index[2]],
-                             arquivos[indexGrupoAtual].vertex[index[3]],
-                             arquivos[indexGrupoAtual].vertex[index[0]]);
-            }
-            else
-            {
-                drawTriangleWireframe(arquivos[indexGrupoAtual].vertex[index[2]],
-                                      arquivos[indexGrupoAtual].vertex[index[3]],
-                                      arquivos[indexGrupoAtual].vertex[index[0]]);
+                drawTriangle(arquivos[objetosPly[j].objetoEscolhido].vertex[index[0]],
+                             arquivos[objetosPly[j].objetoEscolhido].vertex[index[1]],
+                             arquivos[objetosPly[j].objetoEscolhido].vertex[index[2]]);
+
+                drawTriangle(arquivos[objetosPly[j].objetoEscolhido].vertex[index[2]],
+                             arquivos[objetosPly[j].objetoEscolhido].vertex[index[3]],
+                             arquivos[objetosPly[j].objetoEscolhido].vertex[index[0]]);
+
             }
         }
     }
 }
+
+void inseriObjeto()
+{
+    objetosPly[contPlyObjects].material = materialSelected;
+    objetosPly[contPlyObjects].objetoEscolhido = plySelected;
+
+    contPlyObjects++;
+}
+
 void carregaModelo()
 {
     char nomeArquivo [100];
@@ -1008,7 +979,11 @@ void keyboard (unsigned char key, int x, int y)
         g_camera.SetPos(-10.0,3.0,0.0);
         break;
     case 'p':
-        ///Definir função
+        if(viewPort)
+        {
+            waitingPosition = true;
+            inseriObjeto();
+        }
         break;
     case 'b':
         boostSpeed = !boostSpeed;
@@ -1088,13 +1063,29 @@ void MouseMotion(int x, int y)
         int dx = x - g_viewport_width/2;
         int dy = y - g_viewport_height/2;
 
-        if(dx) g_camera.RotateYaw(g_rotation_speed*dx);
-        if(dy) g_camera.RotatePitch(g_rotation_speed*dy);
+        if(dx)
+            g_camera.RotateYaw(g_rotation_speed*dx);
+        if(dy)
+            g_camera.RotatePitch(g_rotation_speed*dy);
 
-        if(!releaseMouse)	glutWarpPointer(g_viewport_width/2, g_viewport_height/2);
+        if(!releaseMouse)
+            glutWarpPointer(g_viewport_width/2, g_viewport_height/2);
 
         just_warped = true;
     }
+}
+
+void savePlyPosition(int x, int y)
+{
+    float pointX = (-10 + x /(width/2) *20);
+    float pointY = (10 - y/height * 20);
+
+    objetosPly[contPlyObjects].posicao.espessura = -1;
+    objetosPly[contPlyObjects].posicao.z = 0;
+    objetosPly[contPlyObjects].posicao.x = pointX;
+    objetosPly[contPlyObjects].posicao.y = pointY;
+
+    waitingPosition = false;
 }
 
 // Mouse callback
@@ -1107,8 +1098,15 @@ void mouse(int button, int state, int x, int y)
             last_x = x;
             last_y = y;
             click = 1;
-            if(x < width/2)
-                calculaCoordenadasPonto(x,y);
+            if(waitingPosition)
+            {
+                savePlyPosition(last_x,last_y);
+            }
+            else
+            {
+                if(x < width/2)
+                    calculaCoordenadasPonto(x,y);
+            }
         }
         if ( button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN )
         {
@@ -1203,6 +1201,7 @@ int main(int argc, char** argv)
     grupoAtual = grupo1;
     grupos.push_back(grupo1);
 
+    readPlyFiles();
     exibeMenu();
     glutInit(&argc, argv);
     glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
