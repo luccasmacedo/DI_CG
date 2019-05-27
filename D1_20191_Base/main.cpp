@@ -40,7 +40,9 @@ public:
     vector<vertice> vertex;
     vector<polygon> faces;
     vertice medio;
-    float scale_factor[3];
+    float scale_factor;
+    float translateZ;
+    float rotation[4];
 };
 
 class Ply
@@ -117,11 +119,11 @@ float materiais[5][3][4] =
     }
 };
 ///Arquivos ply
-string fileName[5] = {"cow.ply",
-                      "big_act.ply",
-                      "weathervane.ply",
-                      "balance.ply",
-                      "fracttree.ply"
+string fileName[5] = {"egret.txt",
+                      "big_act.txt",
+                      "weathervane.txt",
+                      "balance.txt",
+                      "fracttree.txt"
                      };
 
 vector<list<vertice> > grupos;
@@ -418,11 +420,18 @@ void showInfoOnTitle(int group,float height)
     char aux1[32];
     sprintf(aux1,"Grupo atual: %.1d, ",group);
     char aux2[32];
-    sprintf(aux2,"Altura do ponto: %.1f",height);
+    sprintf(aux2,"Material atual : %d, ",materialSelected + 1);
+    char aux3[32];
+    sprintf(aux3,"Arquivo Ply escolhido: ");
+    char aux4[32];
+    std::size_t length = fileName[plySelected].copy(aux4,fileName[plySelected].size(),0);
+    aux4[length] = '\0';
 
-    strcpy(title, "Modelagem 2D-3D, " );
+    strcpy(title, "Ambiente Virtual, " );
     strcat(title,aux1);
     strcat(title,aux2);
+    strcat(title,aux3);
+    strcat(title,aux4);
     strcat(title," - Pressione ESC para sair");
 
     glutSetWindowTitle(title);
@@ -439,6 +448,18 @@ void desenhaEixos2D()
     glColor3f(0.0, 1.0, 0.0);
     glVertex3f(0.0, -10.0, 0.0);
     glVertex3f(0.0,  10.0, 0.0);
+    glEnd();
+    glEnable(GL_LIGHTING);
+}
+
+void desenhaPontoPly(float x, float y)
+{
+    glDisable(GL_LIGHTING);
+    glPointSize(10.0);
+    glEnable(GL_POINT_SMOOTH);
+    glBegin(GL_POINTS);
+    glColor3f(1.0, 0.0, 0.0);
+    glVertex3f(x, y, 0.0);
     glEnd();
     glEnable(GL_LIGHTING);
 }
@@ -515,7 +536,6 @@ void readPlyFiles(string arquivo, int contador)
     //loop por cada linha do arquivo
     while(fgets(buff, sizeof(buff), file))
     {
-
         //dividi a linha em cada palavra (token)
         char *palavra = strtok(buff, " ");
 
@@ -638,33 +658,59 @@ void readPlyFiles()
         readPlyFiles(fileName[i],i);
     }
 
-    arquivos[0].scale_factor[0] = 6;
-    arquivos[0].scale_factor[1] = 6;
-    arquivos[0].scale_factor[2] = 6;
+    arquivos[0].scale_factor = 0.001;
+    arquivos[0].rotation[0] = 0.0;
+    arquivos[0].rotation[1] = 0.0;
+    arquivos[0].rotation[2] = 0.0;
+    arquivos[0].rotation[3] = 0.0;
+    arquivos[0].translateZ = 2.18;
 
+    arquivos[1].scale_factor = 0.7;
+    arquivos[1].rotation[0] = 90.0;
+    arquivos[1].rotation[1] = 1.0;
+    arquivos[1].rotation[2] = 0.0;
+    arquivos[1].rotation[3] = 0.0;
+    arquivos[1].translateZ = 0.2;
 
-    arquivos[1].scale_factor[0] = 6;
-    arquivos[1].scale_factor[1] = 6;
-    arquivos[1].scale_factor[2] = 6;
+    arquivos[2].scale_factor = 0.003;
+    arquivos[2].rotation[0] = 0.0;
+    arquivos[2].rotation[1] = 0.0;
+    arquivos[2].rotation[2] = 0.0;
+    arquivos[2].rotation[3] = 0.0;
+    arquivos[2].translateZ = 1.5;
 
+    arquivos[3].scale_factor = 0.025;
+    arquivos[3].rotation[0] = 0.0;
+    arquivos[3].rotation[1] = 0.0;
+    arquivos[3].rotation[2] = 0.0;
+    arquivos[3].rotation[3] = 0.0;
+    arquivos[3].translateZ = 0.0;
 
-    arquivos[2].scale_factor[0] = 1;
-    arquivos[2].scale_factor[1] = 1;
-    arquivos[2].scale_factor[2] = 1;
-
-    arquivos[3].scale_factor[0] = 6;
-    arquivos[3].scale_factor[1] = 6;
-    arquivos[3].scale_factor[2] = 6;
-
-    arquivos[4].scale_factor[0] = 6;
-    arquivos[4].scale_factor[1] = 6;
-    arquivos[4].scale_factor[2] = 6;
+    arquivos[4].scale_factor = 1.6;
+    arquivos[4].rotation[0] = 90.0;
+    arquivos[4].rotation[1] = 1.0;
+    arquivos[4].rotation[2] = 0.0;
+    arquivos[4].rotation[3] = 0.0;
+    arquivos[4].translateZ = 7.0;
 }
 
 void modelaObjeto()
 {
     for(int j = 0; j < contPlyObjects; j++)
     {
+        glPushMatrix();
+        glTranslatef(objetosPly[j].posicao.x ,objetosPly[j].posicao.y ,arquivos[objetosPly[j].objetoEscolhido].translateZ);
+        float rotation[4];
+        rotation[0] = arquivos[objetosPly[j].objetoEscolhido].rotation[0];
+        rotation[1] = arquivos[objetosPly[j].objetoEscolhido].rotation[1];
+        rotation[2] = arquivos[objetosPly[j].objetoEscolhido].rotation[2];
+        rotation[3] = arquivos[objetosPly[j].objetoEscolhido].rotation[3];
+
+        glRotatef( rotation[0], rotation[1], rotation[2], rotation[3]);
+
+        float scale = arquivos[objetosPly[j].objetoEscolhido].scale_factor;
+        glScalef(scale,scale,scale);
+        glEnable (GL_NORMALIZE);
         SetMaterial(materiais[objetosPly[j].material][0],materiais[objetosPly[j].material][1],
                     materiais[objetosPly[j].material][2]);
         for(int i = 0; i < arquivos[objetosPly[j].objetoEscolhido].faces.size(); i++)
@@ -679,7 +725,8 @@ void modelaObjeto()
 
                 drawTriangle(arquivos[objetosPly[j].objetoEscolhido].vertex[index[0]],
                              arquivos[objetosPly[j].objetoEscolhido].vertex[index[1]],
-                             arquivos[objetosPly[j].objetoEscolhido].vertex[index[2]]);
+                             arquivos[objetosPly[j].objetoEscolhido].vertex[index[2]]
+                             );
             }
             else
             {
@@ -700,6 +747,8 @@ void modelaObjeto()
 
             }
         }
+        glPopMatrix();
+
     }
 }
 
@@ -707,8 +756,7 @@ void inseriObjeto()
 {
     objetosPly[contPlyObjects].material = materialSelected;
     objetosPly[contPlyObjects].objetoEscolhido = plySelected;
-
-    contPlyObjects++;
+    objetosPly[contPlyObjects].orientacao = 0.0;
 }
 
 void carregaModelo()
@@ -732,6 +780,8 @@ void carregaModelo()
     grupos.erase(grupos.begin(), grupos.end());
     grupos.resize(10);
     indexGrupoAtual = -1;
+
+    contPlyObjects = 0;
 
     bool leituraGrupos = true;
     //loop por cada linha do arquivo
@@ -779,6 +829,30 @@ void carregaModelo()
             novo->espessura =  atoi(palavra);
             grupos[indexGrupoAtual].push_back(*novo);
         }
+
+         if(leituraGrupos == false &&
+                strcmp(palavra, "material") != 0 &&
+                strcmp(palavra, "PLY") != 0 &&
+                strcmp(palavra, "\n") != 0)
+        {
+            objetosPly[contPlyObjects].objetoEscolhido = atoi(palavra);
+            palavra = strtok(NULL, " ");
+
+            objetosPly[contPlyObjects].posicao.x = atof(palavra);
+            palavra = strtok(NULL, " ");
+
+            objetosPly[contPlyObjects].posicao.y = atof(palavra);
+            palavra = strtok(NULL, " ");
+
+            objetosPly[contPlyObjects].posicao.z = 0;
+            objetosPly[contPlyObjects].posicao.espessura = -1;
+
+            objetosPly[contPlyObjects].orientacao = atof(palavra);
+            palavra = strtok(NULL, " ");
+
+            objetosPly[contPlyObjects].material = atoi(palavra);
+            contPlyObjects++;
+        }
     }
 
     fclose(file);
@@ -808,6 +882,18 @@ void salvaModelo()
             result = fprintf(arq,"%f %f %f %f\n",it->x, it->y, it->z, it->espessura);
         }
     }
+
+    result = fprintf(arq,"PLY \n");
+    for (int i = 0; i < contPlyObjects; i++ )
+    {
+        /// formato: objetoEscolhido x y orientacao material
+        result = fprintf(arq,"%d %f %f %f %d\n",objetosPly[i].objetoEscolhido,
+        objetosPly[i].posicao.x,
+        objetosPly[i].posicao.y,
+        objetosPly[i].orientacao,
+        objetosPly[i].material);
+    }
+
     fclose(arq);
 
     printf("MODELO SALVO \n");
@@ -866,6 +952,10 @@ void display(void)
 
         /*desenha eixos 2D*/
         desenhaEixos2D();
+        for(int j = 0; j < contPlyObjects; j++)
+        {
+            desenhaPontoPly(objetosPly[j].posicao.x, objetosPly[j].posicao.y);
+        }
 
         /*desenha ponto 2D*/
         if(click == 1)
@@ -1075,7 +1165,7 @@ void MouseMotion(int x, int y)
     }
 }
 
-void savePlyPosition(int x, int y)
+void savePlyPosition(float x, float y)
 {
     float pointX = (-10 + x /(width/2) *20);
     float pointY = (10 - y/height * 20);
@@ -1086,6 +1176,7 @@ void savePlyPosition(int x, int y)
     objetosPly[contPlyObjects].posicao.y = pointY;
 
     waitingPosition = false;
+    contPlyObjects++;
 }
 
 // Mouse callback
@@ -1186,8 +1277,7 @@ void exibeMenu()
     printf(". Aumenta espessura do modelo gerado.\n");
     printf(", Diminui espessura do modelo gerado.\n");
     printf("1,2,3,4 e 5 Escolhe material a ser aplicado nos próximos objetos.\n");
-    printf("6,7,8,9 e 0 Escolhe objeto ply a ser inserido\n");
-    ///FALAR SOBRE OS OBJETOS
+    printf("6,7,8,9 e 0 Escolhe objeto ply a ser inserido(olhar nome da janela)\n");
     printf("p Inserção de um objeto ply e sua orientação\n");
     printf("ESC para sair.\n");
     printf("-------------------------------------\n\n");
