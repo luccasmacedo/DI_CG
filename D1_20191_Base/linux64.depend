@@ -116,3 +116,27 @@
 
 1558808877 /home/ubuntu-thalita/Documentos/CG-T2/DI_CG/D1_20191_Base/extras.h
 
+1561493957 source:/home/ubuntu-thalita/Documentos/CG-T3/DI_CG/D1_20191_Base/camera.cpp
+	<stdio.h>
+	<math.h>
+	<GL/glut.h>
+	"camera.h"
+
+1561493957 /home/ubuntu-thalita/Documentos/CG-T3/DI_CG/D1_20191_Base/camera.h
+
+1561498176 source:/home/ubuntu-thalita/Documentos/CG-T3/DI_CG/D1_20191_Base/main.cpp
+	<GL/glut.h>
+	<stdlib.h>
+	<iostream>
+	<stdio.h>
+	<ctype.h>
+	<math.h>
+	<list>
+	<string.h>
+	"extras.h"
+	<vector>
+	<fstream>
+	"camera.h"
+
+1561493957 /home/ubuntu-thalita/Documentos/CG-T3/DI_CG/D1_20191_Base/extras.h
+

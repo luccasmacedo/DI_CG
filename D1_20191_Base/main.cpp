@@ -62,7 +62,7 @@ float rotationX = 0.0, rotationY = 0.0;
 int  last_x, last_y;
 int  width, height;
 int click = 0;
-float espessuraGlobal = 1;
+float espessuraGlobal = 1.0;
 bool fullSreen = false;
 vertice oldVector[4];
 bool entraIf = false;
@@ -139,6 +139,7 @@ void MouseMotion(int x, int y);
 void modela3D();
 void modelaObjeto();
 void initLuzScene();
+void desenhaPonto(float x, float y);
 
 void KeyboardUp(unsigned char key, int x, int y)
 {
@@ -826,7 +827,7 @@ void carregaModelo()
             novo->z =  atof(palavra);
             palavra = strtok(NULL, " ");
 
-            novo->espessura =  atoi(palavra);
+            novo->espessura =  atof(palavra);
             grupos[indexGrupoAtual].push_back(*novo);
         }
 
