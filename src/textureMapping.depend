@@ -1,0 +1,37 @@
+# depslib dependency file v1.0
+1561493957 source:/home/ubuntu-thalita/Documentos/CG-T3/DI_CG/D1_20191_Base/camera.cpp
+	<stdio.h>
+	<math.h>
+	<GL/glut.h>
+	"camera.h"
+
+1561659773 /home/ubuntu-thalita/Documentos/CG-T3/DI_CG/D1_20191_Base/camera.h
+
+1561719449 source:/home/ubuntu-thalita/Documentos/CG-T3/DI_CG/D1_20191_Base/main.cpp
+	<GL/glut.h>
+	<stdlib.h>
+	<iostream>
+	<stdio.h>
+	<ctype.h>
+	<math.h>
+	<list>
+	<string.h>
+	"extras.h"
+	<vector>
+	<fstream>
+	"camera.h"
+	"glcTexture.h"
+
+1561493957 /home/ubuntu-thalita/Documentos/CG-T3/DI_CG/D1_20191_Base/extras.h
+
+1561493958 source:/home/ubuntu-thalita/Documentos/CG-T3/DI_CG/shared/glcTexture.cpp
+	<string>
+	<stdio.h>
+	<malloc.h>
+	"GL/glut.h"
+	"png.h"
+	"glcTexture.h"
+
+1561493958 /home/ubuntu-thalita/Documentos/CG-T3/DI_CG/shared/glcTexture.h
+	<string>
+

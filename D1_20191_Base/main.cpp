@@ -11,6 +11,7 @@
 #include <fstream>
 #define VECTOR_SIZE 5
 #include "camera.h"
+#include "glcTexture.h"
 
 using namespace std;
 
@@ -93,9 +94,9 @@ bool viewPort = true;
 float materiais[5][3][4] =
 {
     {
-        {.17, .01, .01, 1.0},
-        {.91, .04, .04, 1.0},
-        {.72, .62, .62, 1.0}
+        {0.2, 0.2, 0.2, 1.0} ,
+        {0.8, 0.8, 0.8, 1.0},
+        {0.0, 0.0, 0.0, 1.0}
     },
     {
         {.33, .22, .07, 1.0},
@@ -134,12 +135,19 @@ vector<int> materialAssociado(10,0);
 ///Armazena os arquivos que podem ser inseridos no ambiente
 vector<figure> arquivos(5);
 
+glcTexture *textureManager;
+///Associa uma textura a cada grupo, Padrao 0(sem textura)
+vector<int> texturaAssociada(10,0);
+int texturaAtual = 0;
+
 void KeyboardUp(unsigned char key, int x, int y);
 void MouseMotion(int x, int y);
 void modela3D();
 void modelaObjeto();
 void initLuzScene();
 void desenhaPonto(float x, float y);
+void carregaModelo();
+void carregaMuseu();
 
 void KeyboardUp(unsigned char key, int x, int y)
 {
@@ -215,8 +223,10 @@ void setMaterialChao(void)
     glMaterialfv(GL_FRONT, GL_SHININESS, objeto_brilho);
 }
 
+
 void scene()
 {
+    /**
     float size = 110.0f;
     glPushMatrix();
     glScalef(size, .1, size);
@@ -226,10 +236,55 @@ void scene()
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef(0.0,1.0,0.0);
     glRotated(-90.0,1.0,0.0,0.0);
     modela3D();
-    modelaObjeto();
+        glPushMatrix();
+            glTranslatef(0.0,5.0,0.0);
+            modelaObjeto();
+        glPopMatrix();
+    glPopMatrix();
+    **/
+
+    float size = 110.0f;
+    glPushMatrix();
+    setMaterialChao();
+
+    textureManager->Bind(0);
+    float aspectRatio = textureManager->GetAspectRatio(0);
+
+    // Calculo abaixo funciona apenas se textura estiver centralizada na origem
+    float h = 110.0f;
+    float w = 110.0f;
+
+    if( aspectRatio > 1.0f) h  = h/aspectRatio;
+    else                    w  = w*aspectRatio;
+
+    float repeat = 200.0;
+    glPushMatrix();
+        glRotatef( -90.0, 1.0, 0.0, 0.0 );
+            glBegin(GL_QUADS);
+                glNormal3f(0.0, 0.0, 1.0);
+                glTexCoord2f(0.0, 0.0);
+                glVertex3f(-w, -h, 0.0);
+
+                glTexCoord2f(repeat, 0.0);
+                glVertex3f(w, -h, 0.0);
+
+                glTexCoord2f(repeat, repeat);
+                glVertex3f(w, h, 0.0);
+
+                glTexCoord2f(0.0, repeat);
+                glVertex3f(-w, h, 0.0);
+            glEnd();
+    glPopMatrix();
+
+    glPushMatrix();
+    glRotated(-90.0,1.0,0.0,0.0);
+    modela3D();
+        glPushMatrix();
+            glTranslatef(0.0,5.0,0.0);
+            modelaObjeto();
+        glPopMatrix();
     glPopMatrix();
 }
 
@@ -237,6 +292,14 @@ void scene()
 void init(void)
 {
     initLight(width, height); // Função extra para tratar iluminação.
+    carregaMuseu();
+
+    textureManager = new glcTexture();            // Criação do arquivo que irá gerenciar as texturas
+    textureManager->SetNumberOfTextures(4);       // Estabelece o número de texturas que será utilizado
+    textureManager->CreateTexture("../data/wood.png", 0); // Para testar magnificação, usar a imagem marble128
+    textureManager->CreateTexture("../data/carbon.png", 1); // Textura transparente, não sendo múltipla de zero
+    textureManager->CreateTexture("../data/fishermen.png", 2); // Textura transparente, não sendo múltipla de zero
+    textureManager->CreateTexture("../data/paper.png", 3);
 }
 
 void initLuzScene()
@@ -315,16 +378,46 @@ void drawTriangle(vertice v1, vertice v2, vertice v3, vertice v4)
     triangle t[2] = {{v[0], v[2], v[1]},
         {v[2], v[0], v[3]}
     };
-
+    float repeat = 5.0;
+    /**
     glBegin(GL_TRIANGLES);
     for(int i = 0; i < 2; i++) // triangulos
     {
         CalculaNormal(t[i], &vetorNormal); // Passa face triangular e endereço do vetor normal de saída
         glNormal3f(vetorNormal.x, vetorNormal.y,vetorNormal.z);
-        for(int j = 0; j < 3; j++) // vertices do triangulo
-            glVertex3d(t[i].v[j].x, t[i].v[j].y, t[i].v[j].z);
+
+        glTexCoord2f(0.0 ,0.0);
+        glVertex3d(t[i].v[0].x, t[i].v[0].y, t[i].v[0].z);
+
+        glTexCoord2f(repeat, 0.0);
+        glVertex3d(t[i].v[1].x, t[i].v[1].y, t[i].v[1].z);
+
+        glTexCoord2f(repeat, repeat);
+        glVertex3d(t[i].v[2].x, t[i].v[2].y, t[i].v[2].z);
+
     }
     glEnd();
+    **/
+
+    glPushMatrix();
+        glRotatef( -90.0, 1.0, 0.0, 0.0 );
+            glBegin(GL_QUADS);
+                glNormal3f(-1.0, 0.0, 0.0);
+
+                glTexCoord2f(0.0, 0.0);
+                glVertex3f(v1.x, v1.y, v1.z);
+
+                glTexCoord2f(repeat, 0.0);
+                glVertex3f(v4.x, v4.y, v4.z);
+
+                glTexCoord2f(repeat, repeat);
+                glVertex3f(v3.x, v3.y, v3.z);
+
+                glTexCoord2f(0.0, repeat);
+                glVertex3f(v2.x, v2.y, v2.z);
+
+            glEnd();
+    glPopMatrix();
 }
 
 void drawTriangle(vertice v1, vertice v2, vertice v3)
@@ -363,6 +456,13 @@ void drawSolido(vertice v1, vertice v2, int indexGrupo)
     v6.x =  v2.x - ortogonal.x*(v2.espessura);
     v6.y =  v2.y - ortogonal.y*(v2.espessura);
     v6.z = 0;
+
+    if(indexGrupo == 1 || indexGrupo == 2){
+        v3.z = 2.0;
+        v4.z = 2.0;
+        v5.z = 2.0;
+        v6.z = 2.0;
+    }
 
     v7.x = v3.x;
     v7.y = v3.y;
@@ -423,8 +523,10 @@ void showInfoOnTitle(int group,float height)
     char aux2[32];
     sprintf(aux2,"Material atual : %d, ",materialSelected + 1);
     char aux3[32];
-    sprintf(aux3,"Arquivo Ply escolhido: ");
+    sprintf(aux2,"Textura atual : %d, ",texturaAtual + 1);
     char aux4[32];
+    sprintf(aux3,"Arquivo Ply escolhido: ");
+    char aux5[32];
     std::size_t length = fileName[plySelected].copy(aux4,fileName[plySelected].size(),0);
     aux4[length] = '\0';
 
@@ -433,6 +535,7 @@ void showInfoOnTitle(int group,float height)
     strcat(title,aux2);
     strcat(title,aux3);
     strcat(title,aux4);
+    strcat(title,aux5);
     strcat(title," - Pressione ESC para sair");
 
     glutSetWindowTitle(title);
@@ -471,6 +574,9 @@ void modela3D()
     {
         SetMaterial(materiais[materialAssociado[i]][0], materiais[materialAssociado[i]][1],
                     materiais[materialAssociado[i]][2]);
+
+        textureManager->Bind(texturaAssociada[i]);
+        float aspectRatio = textureManager->GetAspectRatio(texturaAssociada[i]);
 
         for(list<vertice>::iterator it = grupos[i].begin(); it != grupos[i].end(); it++)
         {
@@ -762,9 +868,11 @@ void inseriObjeto()
 
 void carregaModelo()
 {
+    char nomeArquivoAux [100];
     char nomeArquivo [100];
     printf("Digite nome do modelo a ser carregado: \n");
     cin >> nomeArquivo;
+
     strcat(nomeArquivo,".txt");
 
     //abrindo o arquivo
@@ -859,6 +967,97 @@ void carregaModelo()
     fclose(file);
     cout << "FIM" << endl;
 }
+
+
+void carregaMuseu()
+{
+    //abrindo o arquivo
+    FILE *file = fopen("museu.txt", "r");
+    char buff[255];
+
+    //Descarta grupos anteriores
+    grupos.erase(grupos.begin(), grupos.end());
+    grupos.resize(10);
+    indexGrupoAtual = -1;
+
+    contPlyObjects = 0;
+
+    bool leituraGrupos = true;
+    //loop por cada linha do arquivo
+    while(fgets(buff, sizeof(buff), file))
+    {
+        //dividi a linha em cada palavra (token)
+        char *palavra = strtok(buff, " ");
+
+        if(strcmp(palavra, "GRUPOS") == 0)
+        {
+            leituraGrupos = true;
+            palavra = strtok(NULL, " ");
+        }
+
+        if(strcmp(palavra, "PLY") == 0)
+        {
+            leituraGrupos = false;
+            palavra = strtok(NULL, " ");
+        }
+
+        if(strcmp(palavra, "material") == 0 && leituraGrupos == true)
+        {
+            indexGrupoAtual++;
+            palavra = strtok(NULL, " ");
+            materialAssociado[indexGrupoAtual] =  atoi(palavra);
+            /// texturaAssociada[indexGrupoAtual] = 1
+            palavra = strtok(NULL, " ");
+        }
+
+        if(leituraGrupos == true &&
+                strcmp(palavra, "material") != 0 &&
+                strcmp(palavra, "GRUPOS") != 0 &&
+                strcmp(palavra, "\n") != 0)
+        {
+
+            vertice *novo = new vertice();
+            novo->x = atof(palavra);
+            palavra = strtok(NULL, " ");
+
+            novo->y =  atof(palavra);
+            palavra = strtok(NULL, " ");
+
+            novo->z =  atof(palavra);
+            palavra = strtok(NULL, " ");
+
+            novo->espessura =  atof(palavra);
+            grupos[indexGrupoAtual].push_back(*novo);
+        }
+
+         if(leituraGrupos == false &&
+                strcmp(palavra, "material") != 0 &&
+                strcmp(palavra, "PLY") != 0 &&
+                strcmp(palavra, "\n") != 0)
+        {
+            objetosPly[contPlyObjects].objetoEscolhido = atoi(palavra);
+            palavra = strtok(NULL, " ");
+
+            objetosPly[contPlyObjects].posicao.x = atof(palavra);
+            palavra = strtok(NULL, " ");
+
+            objetosPly[contPlyObjects].posicao.y = atof(palavra);
+            palavra = strtok(NULL, " ");
+
+            objetosPly[contPlyObjects].posicao.z = 0;
+            objetosPly[contPlyObjects].posicao.espessura = -1;
+
+            objetosPly[contPlyObjects].orientacao = atof(palavra);
+            palavra = strtok(NULL, " ");
+
+            objetosPly[contPlyObjects].material = atoi(palavra);
+            contPlyObjects++;
+        }
+    }
+
+    fclose(file);
+}
+
 
 void salvaModelo()
 {
@@ -985,17 +1184,20 @@ void display(void)
         gluPerspective(60.0, (GLfloat) (width/2)/(GLfloat) height, 1.0, 200.0);
         gluLookAt (0.0, 0.0, zdist, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 
+        //seleciona a textura
         /*Objetos 3D*/
         glMatrixMode (GL_MODELVIEW);
         glPushMatrix();
         glRotatef( rotationY, 0.0, 1.0, 0.0 );
         glRotatef( rotationX, 1.0, 0.0, 0.0 );
+
         //Desenha objeto 3D
         setMaterials();
         modela3D();
         glPopMatrix();
 
         glutSwapBuffers();
+        textureManager->Disable();
     }
     else
     {
@@ -1014,6 +1216,7 @@ void display(void)
         glViewport ((int) 0, (int) 0, (int)  width, (int) height);
 
         /*Objetos 3D*/
+        textureManager->Bind(0);
         glutSetCursor(GLUT_CURSOR_NONE);
         glMatrixMode (GL_MODELVIEW);
         glPushMatrix();
@@ -1021,8 +1224,8 @@ void display(void)
         //Desenha objeto 3D
         scene();
         glPopMatrix();
-
         glutSwapBuffers();
+        textureManager->Disable();
     }
 }
 
@@ -1067,7 +1270,7 @@ void keyboard (unsigned char key, int x, int y)
         break;
     case 'm':
         viewPort = !viewPort;
-        g_camera.SetPos(-10.0,3.0,0.0);
+        g_camera.SetPos(0.0,1.0,6.0);
         break;
     case 'p':
         if(viewPort)
@@ -1115,6 +1318,19 @@ void keyboard (unsigned char key, int x, int y)
         break;
     case '0':
         plySelected = 4;
+        break;
+    case '+':
+        cout << texturaAtual << endl;
+        if(texturaAtual < 3){
+            texturaAtual++;
+        }
+        texturaAssociada[indexGrupoAtual] =  texturaAtual;
+        break;
+    case '-':
+        if(texturaAtual > 0){
+            texturaAtual--;
+        }
+        texturaAssociada[indexGrupoAtual] =  texturaAtual;
         break;
     }
     g_key[key] = true;

@@ -122,9 +122,9 @@
 	<GL/glut.h>
 	"camera.h"
 
-1561493957 /home/ubuntu-thalita/Documentos/CG-T3/DI_CG/D1_20191_Base/camera.h
+1561659773 /home/ubuntu-thalita/Documentos/CG-T3/DI_CG/D1_20191_Base/camera.h
 
-1561498176 source:/home/ubuntu-thalita/Documentos/CG-T3/DI_CG/D1_20191_Base/main.cpp
+1561662218 source:/home/ubuntu-thalita/Documentos/CG-T3/DI_CG/D1_20191_Base/main.cpp
 	<GL/glut.h>
 	<stdlib.h>
 	<iostream>

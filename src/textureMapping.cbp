@@ -35,14 +35,23 @@
 			<Add library="png" />
 			<Add library="z" />
 		</Linker>
+		<Unit filename="../D1_20191_Base/camera.cpp">
+			<Option virtualFolder="Files/" />
+		</Unit>
+		<Unit filename="../D1_20191_Base/camera.h">
+			<Option virtualFolder="Files/" />
+		</Unit>
+		<Unit filename="../D1_20191_Base/extras.h">
+			<Option virtualFolder="Files/" />
+		</Unit>
+		<Unit filename="../D1_20191_Base/main.cpp">
+			<Option virtualFolder="Files/" />
+		</Unit>
 		<Unit filename="../shared/glcTexture.cpp">
 			<Option virtualFolder="shared/" />
 		</Unit>
 		<Unit filename="../shared/glcTexture.h">
 			<Option virtualFolder="shared/" />
-		</Unit>
-		<Unit filename="TextureMapping.cpp">
-			<Option virtualFolder="Files/" />
 		</Unit>
 		<Extensions>
 			<code_completion />
