@@ -1,0 +1,12 @@
+# depslib dependency file v1.0
+1561493958 source:/home/ubuntu-thalita/Documentos/CG-T3/DI_CG/shared/glcTexture.cpp
+	<string>
+	<stdio.h>
+	<malloc.h>
+	"GL/glut.h"
+	"png.h"
+	"glcTexture.h"
+
+1561493958 /home/ubuntu-thalita/Documentos/CG-T3/DI_CG/shared/glcTexture.h
+	<string>
+

@@ -11,7 +11,8 @@
 #include <fstream>
 #define VECTOR_SIZE 5
 #include "camera.h"
-#include "glcTexture.h"
+#include "glcTexture.h"]
+#include "glcWavefrontObject.h"
 
 using namespace std;
 
@@ -127,18 +128,20 @@ string fileName[5] = {"egret.txt",
                       "fracttree.txt"
                      };
 
-vector<list<vertice> > grupos;
+vector<list<vertice>> grupos;
 list<vertice> grupoAtual;
 vector<Ply> objetosPly(10);
 ///Associa um tipo de material a cada grupo, Padrao 0(material 1)
-vector<int> materialAssociado(10,0);
+vector<int> materialAssociado(15,0);
 ///Armazena os arquivos que podem ser inseridos no ambiente
 vector<figure> arquivos(5);
 
 glcTexture *textureManager;
 ///Associa uma textura a cada grupo, Padrao 0(sem textura)
-vector<int> texturaAssociada(10,0);
+vector<int> texturaAssociada(15,0);
 int texturaAtual = 0;
+
+glcWavefrontObject *objectManager = NULL;
 
 void KeyboardUp(unsigned char key, int x, int y);
 void MouseMotion(int x, int y);
@@ -226,25 +229,6 @@ void setMaterialChao(void)
 
 void scene()
 {
-    /**
-    float size = 110.0f;
-    glPushMatrix();
-    glScalef(size, .1, size);
-    glColor3f(1.0,1.0,1.0);
-    setMaterialChao();
-    glutSolidCube(0.5);
-    glPopMatrix();
-
-    glPushMatrix();
-    glRotated(-90.0,1.0,0.0,0.0);
-    modela3D();
-        glPushMatrix();
-            glTranslatef(0.0,5.0,0.0);
-            modelaObjeto();
-        glPopMatrix();
-    glPopMatrix();
-    **/
-
     float size = 110.0f;
     glPushMatrix();
     setMaterialChao();
@@ -294,12 +278,17 @@ void init(void)
     initLight(width, height); // Função extra para tratar iluminação.
     carregaMuseu();
 
-    textureManager = new glcTexture();            // Criação do arquivo que irá gerenciar as texturas
-    textureManager->SetNumberOfTextures(4);       // Estabelece o número de texturas que será utilizado
-    textureManager->CreateTexture("../data/wood.png", 0); // Para testar magnificação, usar a imagem marble128
-    textureManager->CreateTexture("../data/carbon.png", 1); // Textura transparente, não sendo múltipla de zero
-    textureManager->CreateTexture("../data/fishermen.png", 2); // Textura transparente, não sendo múltipla de zero
+    textureManager = new glcTexture();
+    textureManager->SetNumberOfTextures(9);
+    textureManager->CreateTexture("../data/marble.png", 0);
+    textureManager->CreateTexture("../data/teste.png", 1);
+    textureManager->CreateTexture("../data/carbon.png", 2);
     textureManager->CreateTexture("../data/paper.png", 3);
+    textureManager->CreateTexture("../data/abapuru.png", 4);
+    textureManager->CreateTexture("../data/trabalho.png", 5);
+    textureManager->CreateTexture("../data/religiao.png", 6);
+    textureManager->CreateTexture("../data/a-negra.png", 7);
+    textureManager->CreateTexture("../data/horizontal.png", 8);
 }
 
 void initLuzScene()
@@ -378,37 +367,23 @@ void drawTriangle(vertice v1, vertice v2, vertice v3, vertice v4)
     triangle t[2] = {{v[0], v[2], v[1]},
         {v[2], v[0], v[3]}
     };
-    float repeat = 5.0;
-    /**
-    glBegin(GL_TRIANGLES);
-    for(int i = 0; i < 2; i++) // triangulos
-    {
-        CalculaNormal(t[i], &vetorNormal); // Passa face triangular e endereço do vetor normal de saída
-        glNormal3f(vetorNormal.x, vetorNormal.y,vetorNormal.z);
-
-        glTexCoord2f(0.0 ,0.0);
-        glVertex3d(t[i].v[0].x, t[i].v[0].y, t[i].v[0].z);
-
-        glTexCoord2f(repeat, 0.0);
-        glVertex3d(t[i].v[1].x, t[i].v[1].y, t[i].v[1].z);
-
-        glTexCoord2f(repeat, repeat);
-        glVertex3d(t[i].v[2].x, t[i].v[2].y, t[i].v[2].z);
-
-    }
-    glEnd();
-    **/
+    float repeat = 1.0;
 
     glPushMatrix();
         glRotatef( -90.0, 1.0, 0.0, 0.0 );
             glBegin(GL_QUADS);
-                glNormal3f(-1.0, 0.0, 0.0);
+                //glNormal3f(-1.0, 0.0, 0.0);
+                CalculaNormal(t[0], &vetorNormal); // Passa face triangular e endereço do vetor normal de saída
+                glNormal3f(vetorNormal.x, vetorNormal.y,vetorNormal.z);
 
                 glTexCoord2f(0.0, 0.0);
                 glVertex3f(v1.x, v1.y, v1.z);
 
                 glTexCoord2f(repeat, 0.0);
                 glVertex3f(v4.x, v4.y, v4.z);
+
+                 CalculaNormal(t[1], &vetorNormal); // Passa face triangular e endereço do vetor normal de saída
+                glNormal3f(vetorNormal.x, vetorNormal.y,vetorNormal.z);
 
                 glTexCoord2f(repeat, repeat);
                 glVertex3f(v3.x, v3.y, v3.z);
@@ -457,7 +432,7 @@ void drawSolido(vertice v1, vertice v2, int indexGrupo)
     v6.y =  v2.y - ortogonal.y*(v2.espessura);
     v6.z = 0;
 
-    if(indexGrupo == 1 || indexGrupo == 2){
+    if(indexGrupo >= 1 && indexGrupo <= 6){
         v3.z = 2.0;
         v4.z = 2.0;
         v5.z = 2.0;
@@ -577,6 +552,7 @@ void modela3D()
 
         textureManager->Bind(texturaAssociada[i]);
         float aspectRatio = textureManager->GetAspectRatio(texturaAssociada[i]);
+
 
         for(list<vertice>::iterator it = grupos[i].begin(); it != grupos[i].end(); it++)
         {
@@ -887,7 +863,7 @@ void carregaModelo()
 
     //Descarta grupos anteriores
     grupos.erase(grupos.begin(), grupos.end());
-    grupos.resize(10);
+    grupos.resize(15);
     indexGrupoAtual = -1;
 
     contPlyObjects = 0;
@@ -916,6 +892,10 @@ void carregaModelo()
             indexGrupoAtual++;
             palavra = strtok(NULL, " ");
             materialAssociado[indexGrupoAtual] =  atoi(palavra);
+
+            palavra = strtok(NULL, " ");
+            texturaAssociada[indexGrupoAtual] =  atoi(palavra);
+
             palavra = strtok(NULL, " ");
         }
 
@@ -977,7 +957,7 @@ void carregaMuseu()
 
     //Descarta grupos anteriores
     grupos.erase(grupos.begin(), grupos.end());
-    grupos.resize(10);
+    grupos.resize(15);
     indexGrupoAtual = -1;
 
     contPlyObjects = 0;
@@ -1006,7 +986,10 @@ void carregaMuseu()
             indexGrupoAtual++;
             palavra = strtok(NULL, " ");
             materialAssociado[indexGrupoAtual] =  atoi(palavra);
-            /// texturaAssociada[indexGrupoAtual] = 1
+
+            palavra = strtok(NULL, " ");
+            texturaAssociada[indexGrupoAtual] =  atoi(palavra);
+
             palavra = strtok(NULL, " ");
         }
 
@@ -1320,7 +1303,6 @@ void keyboard (unsigned char key, int x, int y)
         plySelected = 4;
         break;
     case '+':
-        cout << texturaAtual << endl;
         if(texturaAtual < 3){
             texturaAtual++;
         }

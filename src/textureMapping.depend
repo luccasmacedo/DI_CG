@@ -7,7 +7,7 @@
 
 1561659773 /home/ubuntu-thalita/Documentos/CG-T3/DI_CG/D1_20191_Base/camera.h
 
-1561719449 source:/home/ubuntu-thalita/Documentos/CG-T3/DI_CG/D1_20191_Base/main.cpp
+1562027811 source:/home/ubuntu-thalita/Documentos/CG-T3/DI_CG/D1_20191_Base/main.cpp
 	<GL/glut.h>
 	<stdlib.h>
 	<iostream>
@@ -34,4 +34,17 @@
 
 1561493958 /home/ubuntu-thalita/Documentos/CG-T3/DI_CG/shared/glcTexture.h
 	<string>
+
+1561493958 source:/home/ubuntu-thalita/Documentos/CG-T3/DI_CG/shared/glcWavefrontObject.cpp
+	"glcWavefrontObject.h"
+	<math.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<assert.h>
+
+1561493958 /home/ubuntu-thalita/Documentos/CG-T3/DI_CG/shared/glcWavefrontObject.h
+	<math.h>
+	<stdio.h>
+	<GL/gl.h>
 

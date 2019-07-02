@@ -53,6 +53,12 @@
 		<Unit filename="../shared/glcTexture.h">
 			<Option virtualFolder="shared/" />
 		</Unit>
+		<Unit filename="../shared/glcWavefrontObject.cpp">
+			<Option virtualFolder="shared/" />
+		</Unit>
+		<Unit filename="../shared/glcWavefrontObject.h">
+			<Option virtualFolder="shared/" />
+		</Unit>
 		<Extensions>
 			<code_completion />
 			<debugger />
